@@ -1,6 +1,6 @@
 {
-    "name": "ophthamind/eye-system",
-    "description": "Ophthalmology AI clinical web system",
+    "name": "amansafwan/ophthamind-eye-disease-classification",
+    "description": "FYP: OphthaMind AI — clinical web system for fundus image classification using CNN, VGG16, and ResNet50 ensemble deep learning",
     "require": {
         "php": ">=8.0",
         "mpdf/mpdf": "^8.2"
