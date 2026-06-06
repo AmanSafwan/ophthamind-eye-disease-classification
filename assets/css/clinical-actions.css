@@ -1,0 +1,194 @@
+/**
+ * Shared clinical table + action buttons (Patient, Predict, Dashboard)
+ */
+
+/* Typography base moved to clinical-layout.css */
+.clinical-card .card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #0d47a1;
+}
+
+.clinical-card .card-header {
+    background: #fff;
+    border-bottom: 1px solid var(--clinical-border, #dbe4f0);
+    padding: 14px 18px;
+}
+
+/* -- Data tables -- */
+.clinical-data-table {
+    margin-bottom: 0;
+    font-size: 0.9rem;
+}
+
+.clinical-data-table thead th {
+    background: #eef2f7 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+    color: #334155;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 12px 14px !important;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.clinical-data-table tbody td {
+    padding: 12px 14px !important;
+    vertical-align: middle !important;
+    color: #334155;
+    border-color: #e8eef4;
+}
+
+.clinical-data-table.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #fafbfd;
+}
+
+.clinical-data-table.table-hover tbody tr:hover {
+    background-color: #eef4fc;
+}
+
+.clinical-col-action {
+    width: 260px;
+    min-width: 260px;
+}
+
+.predict-history-table .col-actions {
+    width: 240px;
+    min-width: 240px;
+}
+
+.clinical-action-cell {
+    text-align: center !important;
+}
+
+.clinical-action-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* Force visible colored buttons (overrides AdminLTE / Bootstrap) */
+.clinical-data-table .clinical-action-group .btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 34px;
+    padding: 6px 12px !important;
+    font-size: 0.8rem !important;
+    font-weight: 600 !important;
+    line-height: 1.2 !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.14) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    color: #fff !important;
+    text-decoration: none !important;
+}
+
+.clinical-data-table .clinical-action-group .btn i,
+.clinical-data-table .clinical-action-group .btn span {
+    color: #fff !important;
+    pointer-events: none;
+}
+
+.clinical-data-table .btn-clinical-predict,
+.clinical-data-table .btn-clinical-view {
+    background: #1565c0 !important;
+    border: 1px solid #0d47a1 !important;
+}
+
+.clinical-data-table .btn-clinical-predict:hover,
+.clinical-data-table .btn-clinical-view:hover {
+    background: #0d47a1 !important;
+    color: #fff !important;
+}
+
+.clinical-data-table .btn-clinical-edit {
+    background: #f59e0b !important;
+    border: 1px solid #d97706 !important;
+}
+
+.clinical-data-table .btn-clinical-edit:hover {
+    background: #d97706 !important;
+    color: #fff !important;
+}
+
+.clinical-data-table .btn-clinical-pdf {
+    background: #0d9488 !important;
+    border: 1px solid #0f766e !important;
+}
+
+.clinical-data-table .btn-clinical-pdf:hover {
+    background: #0f766e !important;
+    color: #fff !important;
+}
+
+.clinical-data-table .btn-clinical-delete {
+    background: #dc2626 !important;
+    border: 1px solid #b91c1c !important;
+}
+
+.clinical-data-table .btn-clinical-delete:hover {
+    background: #b91c1c !important;
+    color: #fff !important;
+}
+
+/* Diagnosis badges in tables */
+.clinical-badge-dx {
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.clinical-badge-dx.dx-normal { background: #e8f5e9; color: #1b5e20; }
+.clinical-badge-dx.dx-cataract { background: #e3f2fd; color: #0d47a1; }
+.clinical-badge-dx.dx-glaucoma { background: #fff8e1; color: #f57f17; }
+.clinical-badge-dx.dx-diabetic { background: #fce4ec; color: #880e4f; }
+.clinical-badge-dx.dx-default { background: #f1f5f9; color: #475569; }
+
+.clinical-badge-risk {
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    margin-top: 4px;
+    display: inline-block;
+}
+
+.clinical-badge-risk.risk-low { background: #dcfce7; color: #166534; }
+.clinical-badge-risk.risk-medium { background: #fef3c7; color: #b45309; }
+.clinical-badge-risk.risk-high { background: #fee2e2; color: #b91c1c; }
+
+.clinical-conf-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: #e2e8f0;
+    overflow: hidden;
+    min-width: 100px;
+    max-width: 140px;
+}
+
+.clinical-conf-bar span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, #0288d1, #4fc3f7);
+    border-radius: 4px;
+}
+
+.clinical-model-out {
+    font-size: 0.8rem;
+    color: #64748b;
+    line-height: 1.5;
+}
+
+.clinical-model-out strong {
+    color: #475569;
+    font-weight: 600;
+}

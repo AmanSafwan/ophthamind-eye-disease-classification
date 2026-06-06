@@ -1,0 +1,138 @@
+/* Audit log page */
+
+.audit-activity-cell {
+    min-width: 280px;
+}
+
+.audit-summary-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.audit-event-code {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #0d47a1;
+    background: #e3f2fd;
+    border: 1px solid #90caf9;
+    border-radius: 4px;
+    padding: 2px 6px;
+    letter-spacing: 0.02em;
+}
+
+.audit-summary-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #0f172a;
+    line-height: 1.35;
+}
+
+.audit-detail-grid {
+    display: grid;
+    grid-template-columns: minmax(120px, 38%) 1fr;
+    gap: 4px 12px;
+    margin: 0;
+    padding: 8px 10px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-size: 0.75rem;
+}
+
+.audit-detail-grid dt {
+    margin: 0;
+    font-weight: 600;
+    color: #64748b;
+    text-align: left;
+}
+
+.audit-detail-grid dd {
+    margin: 0;
+    color: #1e293b;
+    word-break: break-word;
+}
+
+.audit-details {
+    font-size: var(--fs-sm, 0.8125rem);
+    color: var(--clinical-text-muted, #64748b);
+    margin-top: 4px;
+    line-height: 1.45;
+}
+
+.clinical-data-table tbody td strong {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.history-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.history-kpi {
+    background: #fff;
+    border: 1px solid var(--clinical-border, #e2e8f0);
+    border-radius: var(--radius-md, 10px);
+    padding: 12px 10px;
+    text-align: center;
+    box-shadow: var(--shadow-panel, 0 1px 3px rgba(15, 23, 42, 0.06));
+    min-width: 0;
+}
+
+.history-kpi-clinical {
+    border-color: #93c5fd;
+    background: linear-gradient(180deg, #f8fbff 0%, #fff 100%);
+}
+
+.history-kpi-clinical .val {
+    color: #0d47a1;
+}
+
+.history-kpi .val {
+    font-size: 1.35rem;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.history-kpi .lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #334155;
+    margin-top: 4px;
+}
+
+.history-kpi .hint {
+    font-size: 0.625rem;
+    color: #94a3b8;
+    margin-top: 2px;
+    line-height: 1.2;
+}
+
+.history-kpi-note {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin: 0 0 16px;
+    line-height: 1.45;
+}
+
+.history-kpi-note i {
+    color: #1565c0;
+    margin-right: 4px;
+}
+
+.history-filters .history-filter-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.history-filters .history-filter-btns .btn {
+    flex: 1 1 auto;
+    min-width: 0;
+}

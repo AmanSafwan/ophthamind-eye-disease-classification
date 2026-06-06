@@ -1,0 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --font-clinical: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+html {
+    font-size: 16px;
+}
+
+body,
+.wrapper,
+.content-wrapper,
+.clinical-topbar,
+.clinical-page-header,
+.clinical-card,
+.clinical-panel,
+.clinical-workspace,
+.pbi-dashboard,
+.olap-dashboard,
+.clinical-table,
+.modal-content,
+.form-control,
+.btn {
+    font-family: var(--font-clinical) !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-clinical) !important;
+    font-weight: 700;
+}
+
+.table {
+    font-size: 0.9375rem;
+}
+
+.content-wrapper,
+.clinical-section,
+.clinical-panel,
+.pbi-dashboard,
+.modal-content {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+

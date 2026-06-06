@@ -1,0 +1,135 @@
+/* Patient registry */
+
+.clinical-ic {
+    background: #e8eef7;
+    color: #0d47a1;
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-size: var(--fs-sm, 0.8125rem);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+#patientTable .btn-clinical-predict {
+    min-width: 42px;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+}
+
+#patientTable td:nth-child(3) strong {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+/* Registry summary KPIs (aligned with history page) */
+
+.patient-kpi-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+    gap: 10px;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.patient-kpi {
+    background: #fff;
+    border: 1px solid var(--clinical-border, #e2e8f0);
+    border-radius: var(--radius-md, 10px);
+    padding: 12px 10px;
+    text-align: center;
+    box-shadow: var(--shadow-panel, 0 1px 3px rgba(15, 23, 42, 0.06));
+    min-width: 0;
+}
+
+.patient-kpi .val {
+    font-size: 1.35rem;
+    font-weight: 800;
+    line-height: 1.1;
+    color: #0f172a;
+}
+
+.patient-kpi .lbl {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #334155;
+    margin-top: 4px;
+}
+
+.patient-kpi .hint {
+    font-size: 0.625rem;
+    color: #94a3b8;
+    margin-top: 2px;
+    line-height: 1.2;
+}
+
+.patient-kpi-primary {
+    border-color: #93c5fd;
+    background: linear-gradient(180deg, #f8fbff 0%, #fff 100%);
+}
+
+.patient-kpi-primary .val {
+    color: #0d47a1;
+}
+
+.patient-kpi-male {
+    border-color: #bfdbfe;
+    background: linear-gradient(180deg, #eff6ff 0%, #fff 100%);
+}
+
+.patient-kpi-male .val {
+    color: #1d4ed8;
+}
+
+.patient-kpi-female {
+    border-color: #fbcfe8;
+    background: linear-gradient(180deg, #fdf2f8 0%, #fff 100%);
+}
+
+.patient-kpi-female .val {
+    color: #9d174d;
+}
+
+.patient-kpi-senior {
+    border-color: #fcd34d;
+    background: linear-gradient(180deg, #fffbeb 0%, #fff 100%);
+}
+
+.patient-kpi-senior .val {
+    color: #b45309;
+}
+
+.patient-kpi-screened {
+    border-color: #86efac;
+    background: linear-gradient(180deg, #f0fdf4 0%, #fff 100%);
+}
+
+.patient-kpi-screened .val {
+    color: #15803d;
+}
+
+.patient-kpi-new {
+    border-color: #a5b4fc;
+    background: linear-gradient(180deg, #eef2ff 0%, #fff 100%);
+}
+
+.patient-kpi-new .val {
+    color: #4338ca;
+}
+
+.patient-kpi-note {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin: 0 0 16px;
+    line-height: 1.45;
+}
+
+.patient-kpi-note i {
+    color: #1565c0;
+    margin-right: 4px;
+}
+
+@media (max-width: 576px) {
+    .patient-kpi .val {
+        font-size: 1.15rem;
+    }
+}

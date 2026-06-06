@@ -1,0 +1,288 @@
+/* ==================================================
+   GLOBAL RESET (SAFE FOR ADMINLTE + BOOTSTRAP)
+================================================== */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    overflow-y: scroll;
+}
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: #f4f6f9;
+    overflow-x: hidden;
+    font-size: 14px;
+    color: #333;
+}
+
+/* ==================================================
+   REMOVE CUSTOM LAYOUT CONFLICTS (IMPORTANT)
+   ❌ DO NOT USE .layout / .main-content WITH ADMINLTE
+================================================== */
+
+/* ==================================================
+   TOPBAR / HEADER IMPROVEMENT (ADMINLTE SAFE)
+================================================== */
+.topbar {
+    background: #fff;
+    padding: 14px 18px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.topbar h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.topbar p {
+    margin: 4px 0 0;
+    color: #777;
+    font-size: 13px;
+}
+
+/* ==================================================
+   AUTH PAGE (SAFE ISOLATION)
+================================================== */
+.auth-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.auth-hero {
+    flex: 1;
+    background: linear-gradient(135deg, #1e1e2f, #2c2c54);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 50px;
+}
+
+.auth-hero h1 {
+    font-size: 36px;
+    margin-bottom: 10px;
+}
+
+.auth-hero p {
+    font-size: 14px;
+    opacity: 0.85;
+    line-height: 1.6;
+}
+
+.auth-box {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-card {
+    width: 360px;
+    background: white;
+    padding: 22px;
+    border-radius: 12px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+/* ==================================================
+   FORM ELEMENTS (CONSISTENT SYSTEM STYLE)
+================================================== */
+input,
+select {
+    width: 100%;
+    padding: 9px 12px;
+    margin-bottom: 10px;
+    border: 1px solid #dcdcdc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #3c8dbc;
+    box-shadow: 0 0 0 2px rgba(60,141,188,0.15);
+}
+
+/* ==================================================
+   BUTTON STANDARDIZATION (ADMINLTE FEEL)
+================================================== */
+.btn {
+    font-size: 14px !important;
+    font-weight: 500;
+    border-radius: 6px !important;
+}
+
+.btn-lg {
+    font-size: 15px !important;
+}
+
+/* ==================================================
+   CARD IMPROVEMENTS (KEY FIX FOR "NO DIFFERENCE" ISSUE)
+================================================== */
+.card {
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.card-header {
+    padding: 10px 14px;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 12px 14px;
+}
+
+/* ==================================================
+   INPUT GROUP FIX (SEARCH BOX CONTROL)
+================================================== */
+.input-group {
+    max-width: 100%;
+}
+
+.input-group .form-control {
+    font-size: 14px;
+}
+
+/* ==================================================
+   ICON CONSISTENCY (VERY IMPORTANT FOR UI BALANCE)
+================================================== */
+.fas {
+    font-size: 0.95em;
+}
+
+/* ==================================================
+   UPLOAD BOX (FIX WIDTH ISSUE YOU HAD)
+================================================== */
+#uploadZone {
+    max-width: 520px;
+    margin: 0 auto;
+    transition: 0.2s ease;
+    border-radius: 10px;
+}
+
+#uploadZone:hover {
+    transform: translateY(-2px);
+}
+
+/* ==================================================
+   TABLE CLEAN UI (HISTORY SECTION)
+================================================== */
+.table {
+    font-size: 13.5px;
+}
+
+.table th {
+    font-weight: 600;
+    background: #f8f9fa;
+}
+
+/* ==================================================
+   SMALL TEXT FIX
+================================================== */
+small {
+    font-size: 12px;
+    color: #777;
+}
+
+/* ==================================================
+   UTILITY (SPACING CONTROL)
+================================================== */
+.text-muted {
+    color: #888 !important;
+}
+
+/* ================= OVERLAY ================= */
+.loading-overlay {
+    display: none; /* default OFF */
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 99999;
+
+    justify-content: center;
+    align-items: center;
+}
+
+.loading-overlay.show {
+    display: flex; /* ONLY when active */
+}
+
+/* ================= CARD ================= */
+.loading-card {
+    background: #fff;
+    padding: 40px;
+    border-radius: 16px;
+    text-align: center;
+    width: 360px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+}
+
+/* ================= ICON ================= */
+.loading-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    background: #e7f1ff;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ================= SPINNER ================= */
+.loading-spinner {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 15px;
+}
+
+/* ================= TEXT ================= */
+.loading-title {
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #333;
+}
+
+.loading-subtext {
+    margin: 0;
+    color: #777;
+    font-size: 13px;
+}
+
+/* ================= DOT ANIMATION ================= */
+.loading-dots {
+    margin-top: 15px;
+}
+
+.loading-dots span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    margin: 0 3px;
+    background: #007bff;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes bounce {
+    0%, 80%, 100% { transform: scale(0); }
+    40% { transform: scale(1); }
+}

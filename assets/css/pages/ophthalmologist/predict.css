@@ -1,0 +1,178 @@
+/* Predict page - extends clinical-layout.css */
+
+.predict-workspace {
+    width: 100%;
+}
+
+.predict-lookup-grid {
+    display: grid;
+    grid-template-columns: 1fr minmax(150px, 180px);
+    gap: var(--space-lg, 20px);
+    align-items: end;
+}
+
+@media (max-width: 768px) {
+    .predict-lookup-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.clinical-grid-2#predictSplit {
+    align-items: stretch;
+}
+
+.clinical-grid-2#predictSplit > .clinical-panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.clinical-grid-2#predictSplit .clinical-panel__body {
+    flex: 1;
+}
+
+.predict-upload-zone {
+    border: 2px dashed #93c5fd;
+    border-radius: var(--radius-md, 10px);
+    background: #f8fbff;
+    padding: 28px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.predict-upload-zone.dragover {
+    border-color: var(--clinical-primary-light);
+    background: #e3f2fd;
+}
+
+.predict-upload-zone .upload-inner {
+    width: 100%;
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+.predict-upload-zone i.fa-cloud-upload-alt {
+    font-size: 2.25rem;
+    color: var(--clinical-primary-light);
+    margin-bottom: 10px;
+    display: block;
+}
+
+.predict-upload-zone h3 {
+    font-size: var(--fs-md, 1rem);
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #334155;
+}
+
+.predict-upload-zone p {
+    font-size: var(--fs-sm, 0.8125rem);
+    color: var(--clinical-text-muted);
+    margin-bottom: 12px;
+}
+
+.predict-upload-preview img {
+    max-height: 200px;
+    width: auto;
+    margin: 0 auto;
+    display: block;
+    border-radius: var(--radius-sm, 6px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.predict-run-wrap {
+    text-align: center;
+    margin-top: var(--space-md, 16px);
+    padding-top: var(--space-md, 16px);
+    border-top: 1px solid var(--clinical-border-light, #e8eef4);
+    flex-shrink: 0;
+}
+
+#btnRemovePatient {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* History table */
+.predict-history-table .col-clinician {
+    min-width: 120px;
+    max-width: 160px;
+}
+
+.history-clinician-cell {
+    vertical-align: middle !important;
+}
+
+.history-clinician-name {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.3;
+}
+
+.history-clinician-you {
+    display: inline-block;
+    margin-top: 4px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #0d47a1;
+    background: #e3f2fd;
+    border: 1px solid #90caf9;
+    border-radius: 4px;
+    padding: 1px 6px;
+}
+
+.predict-history-table .col-dx {
+    vertical-align: middle !important;
+}
+
+.predict-history-table .clinical-conf-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+}
+
+.predict-history-table .clinical-conf-bar {
+    width: 100%;
+    max-width: 120px;
+}
+
+.predict-model-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: var(--fs-xs, 0.75rem);
+    line-height: 1.45;
+}
+
+.predict-model-grid strong {
+    display: inline-block;
+    min-width: 52px;
+    font-weight: 600;
+    color: #475569;
+}
+
+#predictHistoryTable .clinical-action-group {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    max-width: 220px;
+    margin: 0 auto;
+}
+
+#predictHistoryTable .clinical-action-group .btn {
+    width: 100%;
+    min-height: 32px;
+    font-size: var(--fs-xs, 0.75rem) !important;
+    padding: 5px 6px !important;
+}

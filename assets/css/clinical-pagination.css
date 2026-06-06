@@ -1,0 +1,92 @@
+/* Shared table pagination (patient + history) */
+
+.clinical-pagination-host:empty {
+    display: none;
+}
+
+.clinical-pagination {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-top: 1px solid var(--clinical-border, #e2e8f0);
+    background: #fafbfc;
+}
+
+.clinical-pagination-info {
+    font-size: 0.8125rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.clinical-pagination-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.clinical-pagination-item {
+    margin: 0;
+}
+
+.clinical-pagination-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    color: #334155;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+a.clinical-pagination-link:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1e40af;
+}
+
+.clinical-pagination-item.is-active .clinical-pagination-link {
+    background: linear-gradient(135deg, #1565c0, #0d47a1);
+    border-color: #0d47a1;
+    color: #fff;
+}
+
+.clinical-pagination-item.is-disabled .clinical-pagination-link {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+}
+
+.clinical-pagination-ellipsis span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 36px;
+    color: #94a3b8;
+    font-weight: 700;
+}
+
+@media (max-width: 576px) {
+    .clinical-pagination {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .clinical-pagination-list {
+        justify-content: center;
+    }
+}

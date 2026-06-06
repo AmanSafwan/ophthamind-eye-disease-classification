@@ -1,0 +1,45 @@
+/vendor/
+/venv/
+/node_modules/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+
+# Runtime & uploads (patient data)
+/upload/*
+!/upload/.gitkeep
+/storage/logs/*
+!/storage/logs/.gitkeep
+/storage/cache/*
+/logs/*
+*.log
+
+# ML model weights (large binaries — see ai/models/README.md)
+/ai/models/**/*.keras
+/ai/models/**/*.h5
+/ai/models/**/*.pb
+
+# Composer
+composer.phar
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# mPDF temp
+/vendor/mpdf/mpdf/tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Optional local scripts output
+/database/smoke_routes.php

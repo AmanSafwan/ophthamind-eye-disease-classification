@@ -1,0 +1,642 @@
+/**
+ * OphthaMind - application shell (sidebar, topbar, footer)
+ * Layout syncs with AdminLTE pushmenu + sidebar-mini (icon collapse).
+ */
+
+/* -- Global: prevent horizontal scroll (do NOT set width:100% on content-wrapper) -- */
+html,
+body.clinical-app {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+body.clinical-app .wrapper {
+    overflow-x: hidden;
+}
+
+/* -- Sidebar (AdminLTE controls width & content offset) -- */
+.main-sidebar.clinical-sidebar {
+    background: linear-gradient(195deg, #0a3d8f 0%, #0d47a1 42%, #1565c0 100%) !important;
+}
+
+.clinical-sidebar .clinical-sidebar-inner {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 57px);
+    padding-bottom: 8px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.clinical-brand,
+.main-sidebar .clinical-brand.brand-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+    text-decoration: none !important;
+    color: #fff !important;
+    min-height: 57px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.clinical-brand:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.clinical-brand-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.clinical-brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.clinical-brand-text strong {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.clinical-brand-text small {
+    font-size: 0.6875rem;
+    opacity: 0.85;
+    font-weight: 500;
+}
+
+.clinical-clinician-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 12px 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    backdrop-filter: blur(4px);
+}
+
+.clinical-clinician-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fff 0%, #e3f2fd 100%);
+    color: #0d47a1;
+    font-weight: 800;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.clinical-clinician-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.clinical-clinician-name {
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.clinical-clinician-role {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.6875rem;
+    margin-top: 2px;
+}
+
+.clinical-clinician-role i {
+    margin-right: 4px;
+}
+
+.clinical-sidebar-footnote {
+    margin: auto 10px 6px;
+    padding: 8px;
+    font-size: 0.625rem;
+    line-height: 1.35;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.65);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.nav-sidebar > .nav-header.clinical-nav-header-hide {
+    font-size: 0.625rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(255, 255, 255, 0.45) !important;
+    padding: 10px 14px 4px;
+}
+
+.clinical-nav-list .nav-link {
+    border-radius: 8px !important;
+    margin: 2px 8px !important;
+    padding: 10px 12px !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    white-space: nowrap;
+}
+
+.clinical-nav-list .nav-link p {
+    margin: 0;
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+.clinical-nav-list .nav-link .nav-icon {
+    width: 1.5rem;
+    text-align: center;
+    margin-right: 8px;
+}
+
+.clinical-nav-list .nav-link:hover {
+    background: rgba(255, 255, 255, 0.12) !important;
+    color: #fff !important;
+}
+
+.clinical-nav-list .nav-link.active {
+    background: rgba(255, 255, 255, 0.22) !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+/* -- Sidebar MINI (burger): icons only - text hidden, width from AdminLTE -- */
+body.sidebar-collapse .clinical-brand-text,
+body.sidebar-collapse .clinical-clinician-meta,
+body.sidebar-collapse .clinical-sidebar-footnote,
+body.sidebar-collapse .clinical-nav-header-hide,
+body.sidebar-collapse .nav-link p {
+    display: none !important;
+}
+
+body.sidebar-collapse .clinical-brand,
+body.sidebar-collapse .clinical-clinician-card {
+    justify-content: center;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+body.sidebar-collapse .clinical-clinician-card {
+    margin: 8px 6px;
+    padding: 8px 4px;
+}
+
+body.sidebar-collapse .clinical-brand-icon {
+    margin: 0 auto;
+}
+
+body.sidebar-collapse .clinical-nav-list .nav-link {
+    justify-content: center;
+    margin: 3px 6px !important;
+    padding: 10px 0 !important;
+}
+
+body.sidebar-collapse .clinical-nav-list .nav-link .nav-icon {
+    margin: 0 !important;
+    font-size: 1.125rem;
+}
+
+body.sidebar-collapse .clinical-sidebar-inner {
+    overflow-x: hidden;
+}
+
+/* -- Topbar (minimal: sidebar owns navigation) -- */
+.clinical-topbar {
+    background: #fff !important;
+    box-shadow: 0 1px 0 #e2e8f0 !important;
+    min-height: 52px;
+    padding: 0 16px 0 8px;
+}
+
+.clinical-menu-toggle {
+    width: 40px;
+    height: 40px;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.15s;
+}
+
+.clinical-menu-toggle:hover {
+    background: #f1f5f9;
+}
+
+.clinical-topbar-left {
+    gap: 4px;
+    min-width: 0;
+}
+
+.clinical-topbar-page {
+    min-width: 0;
+    max-width: min(240px, 50vw);
+}
+
+.clinical-topbar-page-title {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: #0f172a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.clinical-topbar-right {
+    gap: 4px;
+}
+
+.clinical-user-trigger {
+    display: flex !important;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 10px 5px 5px !important;
+    border-radius: 10px !important;
+    border: 1px solid #e2e8f0;
+    background: #fff;
+    transition: box-shadow 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.clinical-user-trigger:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.clinical-user-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+    min-width: 0;
+    max-width: 160px;
+}
+
+.clinical-user-role {
+    font-size: 0.6875rem;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.clinical-user-chevron {
+    font-size: 0.625rem;
+    color: #94a3b8;
+    margin-left: 2px;
+}
+
+.clinical-user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1565c0, #0d47a1);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.clinical-user-name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #1e293b;
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.clinical-user-dropdown {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+    padding: 0;
+    min-width: 220px;
+    overflow: hidden;
+}
+
+.clinical-user-dropdown .dropdown-header {
+    background: #f8fafc;
+    padding: 14px 16px;
+}
+
+.clinical-user-dropdown .dropdown-header strong {
+    display: block;
+    font-size: 0.875rem;
+}
+
+.clinical-user-dropdown .dropdown-header small {
+    color: #64748b;
+    font-size: 0.75rem;
+}
+
+.clinical-user-dropdown .dropdown-item {
+    font-size: 0.8125rem;
+    padding: 10px 16px;
+    transition: background 0.12s;
+}
+
+.clinical-user-dropdown .dropdown-item:hover {
+    background: #eff6ff;
+}
+
+/* Announcement (inside content area) */
+.clinical-announcement-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: #334155;
+}
+
+.clinical-announcement-bar.is-hidden {
+    display: none;
+}
+
+.clinical-announcement-bar i {
+    color: #1e40af;
+    flex-shrink: 0;
+}
+
+.clinical-announcement-bar span {
+    flex: 1;
+    min-width: 0;
+}
+
+.clinical-announcement-close {
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 1.125rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 4px;
+}
+
+.clinical-main-container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 12px;
+    padding-right: 12px;
+    box-sizing: border-box;
+}
+
+/* Page header */
+.clinical-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: var(--space-md, 16px);
+    padding: 16px 20px;
+    background: #fff;
+    border: 1px solid var(--clinical-border, #dbe4f0);
+    border-radius: var(--radius-lg, 12px);
+    box-shadow: var(--shadow-panel);
+}
+
+.clinical-page-header-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.clinical-page-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    color: #1565c0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.clinical-page-header h1 {
+    font-size: 1.25rem !important;
+    margin: 0 !important;
+}
+
+.clinical-page-header p {
+    margin: 4px 0 0 !important;
+}
+
+/* Footer */
+.clinical-footer {
+    background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+    border-top: 1px solid var(--clinical-border, #dbe4f0);
+    padding: 28px 24px 16px;
+    margin-top: 8px;
+}
+
+.clinical-footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 24px;
+    max-width: 1440px;
+    margin: 0 auto 20px;
+}
+
+.clinical-footer-logo {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: #0d47a1;
+    margin-bottom: 8px;
+}
+
+.clinical-footer-logo i {
+    margin-right: 6px;
+}
+
+.clinical-footer-brand p {
+    font-size: 0.8125rem;
+    color: #64748b;
+    line-height: 1.5;
+    margin: 0 0 10px;
+    max-width: 360px;
+}
+
+.clinical-footer-version {
+    display: inline-block;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #475569;
+    background: #e2e8f0;
+    padding: 3px 10px;
+    border-radius: 999px;
+}
+
+.clinical-footer-links h6,
+.clinical-footer-meta h6 {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #475569;
+    margin-bottom: 10px;
+}
+
+.clinical-footer-links ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.clinical-footer-links li {
+    margin-bottom: 6px;
+}
+
+.clinical-footer-links a {
+    font-size: 0.8125rem;
+    color: #334155;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s, transform 0.15s;
+}
+
+.clinical-footer-links a:hover {
+    color: #1565c0;
+    transform: translateX(3px);
+}
+
+.clinical-footer-links a i {
+    font-size: 0.625rem;
+    color: #94a3b8;
+}
+
+.clinical-footer-meta p {
+    font-size: 0.75rem;
+    color: #64748b;
+    line-height: 1.45;
+    margin: 0 0 10px;
+}
+
+.clinical-footer-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.clinical-footer-badges span {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #166534;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.clinical-footer-badges span i {
+    margin-right: 4px;
+}
+
+.clinical-footer-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.clinical-footer-bottom small {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.clinical-footer-powered {
+    color: #64748b !important;
+}
+
+/*
+ * Layout offsets: AdminLTE sets margin-left on .main-header, .content-wrapper, .main-footer.
+ * Never add margin-left or width:100% here - that pushes content off-screen.
+ */
+
+body.clinical-app .content-wrapper.clinical-content-wrapper {
+    min-height: calc(100vh - 3.5rem);
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+body.clinical-app.layout-navbar-fixed .wrapper .main-header {
+    z-index: 1034;
+}
+
+body.clinical-app .clinical-section {
+    overflow-x: hidden;
+    box-sizing: border-box;
+}
+
+body.clinical-app .clinical-main-container {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+body.clinical-app .clinical-workspace {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+body.clinical-app .main-footer.clinical-footer {
+    padding: 1.25rem 1rem;
+}
+
+@media (max-width: 992px) {
+    .clinical-footer-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .clinical-footer-brand {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .clinical-footer-grid {
+        grid-template-columns: 1fr;
+    }
+    .clinical-announcement-item {
+        white-space: normal;
+        font-size: 0.6875rem;
+    }
+}
+
+/* AI report modal — AdminLTE/Bootstrap default dialog is only 500px wide */
+.modal-dialog.modal-ai-result {
+    max-width: min(880px, calc(100vw - 24px)) !important;
+    width: calc(100vw - 24px);
+    margin: 1rem auto;
+}

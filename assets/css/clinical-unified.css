@@ -1,0 +1,134 @@
+/**
+ * Cross-page consistency - fonts, controls, tables, panels (all ophthalmologist pages)
+ */
+
+/* -- Type scale (matches clinical-ui tokens) -- */
+.clinical-page-header h1 {
+    font-size: 1.25rem !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    margin: 0 !important;
+    color: var(--clinical-text, #1e293b) !important;
+}
+
+.clinical-page-header p {
+    font-size: var(--fs-sm, 0.8125rem) !important;
+    color: var(--clinical-text-muted, #64748b) !important;
+    margin: 4px 0 0 !important;
+}
+
+.clinical-panel,
+.clinical-card {
+    font-size: var(--fs-sm, 0.8125rem);
+}
+
+.clinical-panel h6,
+.clinical-card h6 {
+    font-size: var(--fs-sm, 0.8125rem) !important;
+    font-weight: 600 !important;
+}
+
+/* -- Form controls -- */
+.clinical-workspace .form-control,
+.clinical-panel .form-control,
+.clinical-toolbar .form-control {
+    height: 34px;
+    font-size: var(--fs-sm, 0.8125rem);
+    border-radius: var(--radius-sm, 6px);
+    border-color: var(--clinical-border, #dbe4f0);
+}
+
+.clinical-workspace select.form-control {
+    padding-right: 28px;
+}
+
+/* -- Buttons (consistent height & icon gap) -- */
+.btn-clinical-primary,
+.btn-clinical-outline,
+.btn-clinical-light {
+    min-height: 34px;
+    padding: 6px 14px;
+    font-size: var(--fs-sm, 0.8125rem);
+    font-weight: 600;
+    border-radius: var(--radius-sm, 6px);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    line-height: 1.2;
+}
+
+.btn-clinical-primary.btn-sm,
+.btn-clinical-outline.btn-sm {
+    min-height: 32px;
+    padding: 5px 12px;
+    font-size: var(--fs-xs, 0.75rem);
+}
+
+.btn i,
+.olap-quick-link i,
+.olap-nav-btn i {
+    font-size: 0.875em;
+    width: 1em;
+    text-align: center;
+}
+
+/* -- Tables -- */
+.clinical-data-table {
+    font-size: var(--fs-sm, 0.8125rem) !important;
+}
+
+.clinical-data-table thead th {
+    font-size: var(--fs-xs, 0.75rem) !important;
+    font-weight: 600 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--clinical-text-muted, #64748b) !important;
+    background: #f8fafc !important;
+    border-bottom: 1px solid var(--clinical-border, #dbe4f0) !important;
+    padding: 8px 10px !important;
+    white-space: nowrap;
+}
+
+.clinical-data-table tbody td {
+    padding: 8px 10px !important;
+    vertical-align: middle !important;
+    color: var(--clinical-text, #1e293b);
+    border-top: 1px solid var(--clinical-border-light, #e8eef4) !important;
+}
+
+.clinical-data-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* -- Badges -- */
+.clinical-badge-dx,
+.clinical-badge-risk {
+    font-size: var(--fs-xs, 0.75rem) !important;
+    font-weight: 600;
+    padding: 3px 8px !important;
+    border-radius: 999px !important;
+    white-space: nowrap;
+}
+
+/* -- AI status pill -- */
+.ai-status-pill {
+    font-size: var(--fs-xs, 0.75rem);
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* -- Dashboard workspace alignment -- */
+.olap-dashboard {
+    font-size: var(--fs-sm, 0.8125rem);
+}
+
+.olap-dashboard .clinical-panel {
+    border-radius: var(--radius-md, 10px);
+    border: 1px solid var(--clinical-border, #dbe4f0);
+    box-shadow: var(--shadow-panel);
+}
