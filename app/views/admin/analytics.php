@@ -4,7 +4,7 @@ require_once BASE_PATH . "/includes/sidebar.php";
 ?>
 
 <!-- PAGE CSS (change ikut page) -->
-<link rel="stylesheet" href="/eye_system/assets/css/pages/ophthalmologist/patient.css">
+<link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/pages/ophthalmologist/patient.css">
 
 <div class="main-content">
 

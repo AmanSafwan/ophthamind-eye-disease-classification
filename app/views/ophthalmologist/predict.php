@@ -125,20 +125,30 @@ require BASE_PATH . '/includes/clinical_layout_start.php';
         </div>
         <div class="clinical-panel__body clinical-panel__body--flush">
             <div class="table-responsive">
-                <table id="predictHistoryTable" class="table mb-0 clinical-data-table predict-history-table table-hover table-striped">
+                <table id="predictHistoryTable" class="table mb-0 clinical-data-table predict-history-table table-hover">
+                    <colgroup>
+                        <col class="col-date">
+                        <col class="col-dx">
+                        <col class="col-risk">
+                        <col class="col-certainty">
+                        <col class="col-agreement">
+                        <col class="col-clinician">
+                        <col class="col-actions">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th class="col-date">Screened</th>
-                            <th class="col-clinician">Clinician</th>
                             <th class="col-dx">Diagnosis</th>
-                            <th class="col-conf">Confidence</th>
-                            <th class="col-models">Model outputs</th>
-                            <th class="col-actions text-center">Actions</th>
+                            <th class="col-risk">Risk</th>
+                            <th class="col-certainty">Certainty</th>
+                            <th class="col-agreement">Agreement</th>
+                            <th class="col-clinician">Clinician</th>
+                            <th class="col-actions">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="historyBody">
                         <tr>
-                            <td colspan="6">
+                            <td colspan="7">
                                 <div class="clinical-empty-state" id="historyEmptyDefault">
                                     <i class="fas fa-inbox"></i>
                                     <strong>No patient selected</strong>
@@ -228,7 +238,7 @@ require BASE_PATH . '/includes/clinical_layout_start.php';
 
 <?php
 $page_js = '<script>window.CLINICAL_DOCTOR_ID = ' . (int)($current_doctor_id ?? 0) . ';</script>'
-    . '<script src="' . BASE_URL . '/assets/js/pages/ophthalmologist/predict.js"></script>';
+    . '<script src="' . BASE_URL . '/assets/js/pages/ophthalmologist/predict.js?v=' . (@filemtime(BASE_PATH . '/assets/js/pages/ophthalmologist/predict.js') ?: '1') . '"></script>';
 require BASE_PATH . '/includes/clinical_layout_end.php';
 require_once BASE_PATH . '/includes/footer.php';
 ?>

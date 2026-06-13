@@ -240,23 +240,22 @@
 
 /* AI result modal - width override lives in clinical-shell.css (after AdminLTE) */
 .modal-ai-result .modal-content {
-    max-height: calc(100vh - 2rem);
+    max-height: calc(100vh - 1.5rem);
     display: flex;
     flex-direction: column;
     overflow: hidden;
 }
 
 .modal-ai-body {
-    overflow-x: visible;
-    overflow-y: auto !important;
-    flex: 1 1 auto;
-    max-height: calc(100vh - 140px);
+    overflow: hidden !important;
+    flex: 0 1 auto;
+    max-height: none;
+    padding: 0 !important;
 }
 
 .ai-result-compact {
     padding: 12px 14px;
-    background: var(--clinical-surface);
-    overflow: visible;
+    background: var(--clinical-surface, #f4f7fb);
     box-sizing: border-box;
     width: 100%;
 }
@@ -265,36 +264,39 @@
     display: flex;
     gap: 14px;
     align-items: stretch;
-    min-height: 0;
 }
 
 .ai-result-thumb {
-    flex: 0 0 130px;
+    flex: 0 0 120px;
     border-radius: 10px;
     overflow: hidden;
     background: #1a1a2e;
     display: flex;
     align-items: center;
     justify-content: center;
-    max-height: 130px;
+    max-height: 120px;
 }
 
 .ai-result-thumb img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    max-height: 130px;
+    max-height: 120px;
 }
 
 .ai-result-hero {
     flex: 1;
     border-radius: 10px;
-    padding: 12px 14px;
+    padding: 14px 16px;
     color: #fff;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: flex-start;
+    gap: 8px;
     min-width: 0;
+    min-height: 120px;
+    box-sizing: border-box;
 }
 
 .ai-result-hero.dx-normal { background: linear-gradient(135deg, #2e7d32, #43a047); }
@@ -304,40 +306,43 @@
 .ai-result-hero.dx-unknown { background: linear-gradient(135deg, #455a64, #607d8b); }
 
 .ai-result-hero h3 {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 700;
-    margin: 0 0 6px;
-    line-height: 1.2;
+    margin: 0;
+    line-height: 1.25;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.ai-result-hero h3 .mr-2 {
+    margin-right: 0 !important;
 }
 
 .ai-result-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     align-items: center;
-}
-
-.ai-confidence-badge {
-    background: rgba(255, 255, 255, 0.25);
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 700;
+    font-size: 0.75rem;
+    margin: 0;
+    width: 100%;
 }
 
 .ai-clinician-badge,
-.ai-screened-at-badge {
-    background: rgba(255, 255, 255, 0.2);
+.ai-screened-at-badge,
+.ai-risk-badge {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1.2;
     padding: 4px 10px;
     border-radius: 20px;
     font-size: 0.72rem;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .ai-risk-badge {
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
 }
@@ -346,7 +351,7 @@
 .ai-risk-badge.risk-medium { background: #ffe0b2; color: #e65100; }
 .ai-risk-badge.risk-high { background: #ffcdd2; color: #b71c1c; }
 
-/* CNN · VGG · ResNet · Agreement — single left-to-right row */
+/* CNN · VGG · ResNet · Ensemble */
 .ai-ensemble-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -357,100 +362,130 @@
     box-sizing: border-box;
 }
 
-.ai-model-chip,
-.ai-agreement-box {
+.ai-model-chip {
     background: #fff;
     border-radius: 8px;
-    padding: 8px 10px;
-    border: 1px solid var(--clinical-border);
+    padding: 10px;
+    border: 1px solid var(--clinical-border, #dbe3ef);
     min-width: 0;
-    max-width: 100%;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
     text-align: left;
-    overflow: visible;
     box-sizing: border-box;
+    font-size: 0.75rem;
 }
 
-.ai-model-chip .model-chip-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 4px;
-    min-width: 0;
-}
-
-.ai-model-chip .model-name,
-.ai-agreement-label {
-    font-size: 0.62rem;
+.ai-model-chip .model-name {
+    font-size: 0.65rem;
     text-transform: uppercase;
     color: #64748b;
     font-weight: 700;
-    letter-spacing: 0.02em;
-    min-width: 0;
+    letter-spacing: 0.04em;
     line-height: 1.2;
 }
 
-.ai-model-chip .model-conf {
+.ai-model-chip .model-dx {
     font-size: 0.78rem;
     font-weight: 700;
-    color: #0d47a1;
+    color: #1e293b;
+    line-height: 1.3;
+    min-height: 2.6em;
+    word-break: break-word;
+}
+
+.linked-metric-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: auto;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.linked-metric-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.linked-metric-label {
+    font-size: 0.62rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.linked-metric-pct {
+    font-size: 0.75rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
     white-space: nowrap;
     flex-shrink: 0;
 }
 
-.ai-agreement-val {
-    font-size: 1rem;
-    font-weight: 700;
-    color: #0d47a1;
-    line-height: 1.1;
-}
-
-.ai-model-chip .model-dx {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #1e293b;
-    line-height: 1.2;
-    min-height: 2.4em;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    word-break: break-word;
-}
-
-.ai-model-chip .model-bar,
-.ai-agreement-box .ai-agreement-bar {
-    height: 5px;
-    background: #e2e8f0;
-    border-radius: 4px;
-    margin-top: auto;
-    overflow: hidden;
+.linked-metric-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
     flex-shrink: 0;
 }
 
-.ai-model-chip .model-bar span {
-    display: block;
-    height: 100%;
-    border-radius: 4px;
+.ai-model-chip .model-bar {
+    --metric-bar-h: 6px;
+    height: var(--metric-bar-h);
+    min-height: var(--metric-bar-h);
+    max-height: var(--metric-bar-h);
+    flex: 0 0 var(--metric-bar-h);
+    background: #e2e8f0;
+    border-radius: 3px;
+    overflow: hidden;
+    line-height: 0;
+    font-size: 0;
 }
 
-.ai-model-chip.cnn .model-bar span { background: #1565c0; }
-.ai-model-chip.vgg .model-bar span { background: #2e7d32; }
-.ai-model-chip.resnet .model-bar span { background: #ef6c00; }
+.ai-model-chip .model-bar .bar-value {
+    display: block;
+    height: var(--metric-bar-h);
+    min-height: var(--metric-bar-h);
+    border-radius: 3px;
+    min-width: 2px;
+    transition: width 0.35s ease;
+}
 
-.ai-agreement-sub {
-    font-size: 0.65rem;
+.ai-metrics-legend {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px 10px;
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: #fff;
+    border: 1px solid var(--clinical-border, #dbe3ef);
+    border-radius: 8px;
+    font-size: 0.68rem;
     color: #64748b;
-    line-height: 1.2;
+    line-height: 1.4;
 }
 
-.ai-agreement-box .ai-agreement-bar span {
-    display: block;
-    height: 100%;
-    background: linear-gradient(90deg, #1565c0, #42a5f5);
-    border-radius: 4px;
+.ai-metrics-legend-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ai-metrics-legend-item strong {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #475569;
+    font-weight: 700;
 }
 
 .ai-clinical-note {
@@ -458,7 +493,7 @@
     background: #fff;
     border-radius: 8px;
     padding: 10px 12px;
-    border: 1px solid var(--clinical-border);
+    border: 1px solid var(--clinical-border, #dbe3ef);
     text-align: left;
 }
 
@@ -477,19 +512,20 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    .ai-agreement-box {
+    .ai-model-chip.ensemble {
         grid-column: 1 / -1;
+    }
+
+    .ai-metrics-legend {
+        grid-template-columns: 1fr;
     }
 }
 
 .ai-interpretation {
-    font-size: 0.8125rem;
+    font-size: 0.8rem;
     color: #334155;
-    line-height: 1.5;
+    line-height: 1.55;
     margin: 0;
-    white-space: normal;
-    word-wrap: break-word;
-    overflow-wrap: anywhere;
 }
 
 /* Sidebar - see clinical-shell.css */

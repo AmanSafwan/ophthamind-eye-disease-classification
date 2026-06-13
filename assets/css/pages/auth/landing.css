@@ -1,9 +1,9 @@
 /* OphthaMind: premium clinical landing */
 
 :root {
-    --navy: #061e47;
-    --blue: #0d47a1;
-    --blue-bright: #1e88e5;
+    --navy: #0a1f3d;
+    --blue: #1a53a1;
+    --blue-bright: #2569b8;
     --cyan: #00bcd4;
     --teal: #00a896;
     --violet: #5c6bc0;
@@ -61,7 +61,7 @@ body.landing-page {
     grid-template-rows: auto 1fr auto;
     padding: clamp(20px, 3vh, 36px) clamp(24px, 4vw, 56px) clamp(16px, 2vh, 24px);
     overflow: hidden;
-    background: linear-gradient(145deg, #071428 0%, #0a2540 35%, #0d3d6b 70%, #0a2e52 100%);
+    background: linear-gradient(145deg, #0a1f3d 0%, #133f78 40%, var(--logo-blue, #1a53a1) 100%);
     border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
@@ -138,44 +138,14 @@ body.landing-page {
 .story-logo {
     display: inline-flex;
     align-items: center;
-    gap: 14px;
+    line-height: 0;
     text-decoration: none;
-    color: #fff;
-    transition: transform 0.2s;
+    transition: transform 0.2s, opacity 0.2s;
 }
 
 .story-logo:hover {
     transform: translateY(-2px);
-}
-
-.story-logo-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--cyan) 0%, var(--blue-bright) 50%, var(--violet) 100%);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.35rem;
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, 0.15),
-        0 12px 32px rgba(0, 188, 212, 0.35);
-}
-
-.story-logo strong {
-    display: block;
-    font-size: 1.2rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-}
-
-.story-logo small {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.55);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
+    opacity: 0.95;
 }
 
 .story-body {
@@ -464,7 +434,7 @@ body.landing-page {
 
 .access-panel-head {
     flex-shrink: 0;
-    margin-bottom: 22px;
+    margin-bottom: 18px;
     text-align: center;
 }
 

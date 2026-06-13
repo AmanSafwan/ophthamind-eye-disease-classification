@@ -12,11 +12,11 @@ if (PHP_SAPI !== 'cli') {
     exit(1);
 }
 
-require_once dirname(__DIR__) . '/config/app.php';
-require_once dirname(__DIR__) . '/app/models/Patient.php';
+require_once dirname(__DIR__, 2) . '/config/app.php';
+require_once dirname(__DIR__, 2) . '/app/models/Patient.php';
 
 /** @var PDO $db */
-$db = require dirname(__DIR__) . '/config/db.php';
+$db = require dirname(__DIR__, 2) . '/config/db.php';
 
 $skipConfirm = in_array('--yes', $argv ?? [], true);
 $originals = require __DIR__ . '/data/original_patients.php';

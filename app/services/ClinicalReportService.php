@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../helpers/DiagnosisHelper.php';
+require_once __DIR__ . '/../helpers/AiMetricsHelper.php';
 
 class ClinicalReportService
 {
@@ -61,10 +62,10 @@ class ClinicalReportService
     public static function buildReportHtml(array $data): string
     {
         $reportId = (int)($data['id'] ?? 0);
-        $name = self::esc($data['name'] ?? '—');
-        $ic = self::esc($data['ic'] ?? '—');
-        $age = self::esc((string)($data['age'] ?? '—'));
-        $gender = self::esc($data['gender'] ?? '—');
+        $name = self::esc($data['name'] ?? 'N/A');
+        $ic = self::esc($data['ic'] ?? 'N/A');
+        $age = self::esc((string)($data['age'] ?? 'N/A'));
+        $gender = self::esc($data['gender'] ?? 'N/A');
         $final = DiagnosisHelper::normalize($data['final_result'] ?? '');
         $finalEsc = self::esc($final);
         $confidence = self::formatPercent($data['confidence'] ?? 0);
@@ -79,8 +80,19 @@ class ClinicalReportService
         $cnnC = self::formatPercent($data['cnn_confidence'] ?? 0);
         $vggC = self::formatPercent($data['vgg_confidence'] ?? 0);
         $resC = self::formatPercent($data['resnet_confidence'] ?? 0);
+        $cnnA = self::formatPercent($data['cnn_accuracy'] ?? AiMetricsHelper::benchmarkAccuracy('cnn'));
+        $vggA = self::formatPercent($data['vgg_accuracy'] ?? AiMetricsHelper::benchmarkAccuracy('vgg16'));
+        $resA = self::formatPercent($data['resnet_accuracy'] ?? AiMetricsHelper::benchmarkAccuracy('resnet50'));
+        $agrLabel = self::formatPercent($data['agreement_label_pct'] ?? 0);
+        $agrAcc = self::formatPercent($data['agreement_accuracy_pct'] ?? 0);
+        $agrConf = self::formatPercent($data['agreement_confidence_pct'] ?? 0);
 
-        $recommendation = self::esc(DiagnosisHelper::clinicalRecommendation($final));
+        $recommendation = self::esc(DiagnosisHelper::clinicalNoteFromModels(
+            (string)($data['cnn_result'] ?? ''),
+            (string)($data['vgg_result'] ?? ''),
+            (string)($data['resnet_result'] ?? ''),
+            $final
+        ));
         $followUp = self::esc(DiagnosisHelper::followUpInterval($final, (string)($data['risk_level'] ?? '')));
         $dxColor = self::diagnosisColor($final);
         $riskColor = self::riskColor((string)($data['risk_level'] ?? ''));
@@ -143,7 +155,7 @@ class ClinicalReportService
 <div class="summary-metrics">
 Confidence <strong>{$confidence}</strong> &nbsp;·&nbsp;
 Risk <strong style="color:{$riskColor};">{$risk}</strong> &nbsp;·&nbsp;
-Model agreement <strong>{$agreement}</strong>
+Agreement <strong>{$agreement}</strong> (label {$agrLabel} · accuracy {$agrAcc} · confidence {$agrConf})
 </div>
 </td>
 <td width="50%" class="summary-clinician">
@@ -158,17 +170,18 @@ Model agreement <strong>{$agreement}</strong>
 <table class="model-table" width="100%">
 <thead>
 <tr>
-<th width="28%">Model architecture</th>
-<th width="32%">Predicted class</th>
-<th width="20%">Confidence</th>
-<th width="20%">Clinical weight</th>
+<th width="24%">Model architecture</th>
+<th width="28%">Predicted class</th>
+<th width="16%">Accuracy</th>
+<th width="16%">Confidence</th>
+<th width="16%">Ensemble weight</th>
 </tr>
 </thead>
 <tbody>
-<tr><td>Convolutional Neural Network (CNN)</td><td>{$cnn}</td><td>{$cnnC}</td><td>Primary</td></tr>
-<tr><td>VGG16 (transfer learning)</td><td>{$vgg}</td><td>{$vggC}</td><td>Secondary</td></tr>
-<tr><td>ResNet50 (transfer learning)</td><td>{$resnet}</td><td>{$resC}</td><td>Secondary</td></tr>
-<tr class="ensemble-row"><td><strong>Ensemble consensus</strong></td><td><strong>{$finalEsc}</strong></td><td><strong>{$confidence}</strong></td><td><strong>{$agreement} agreement</strong></td></tr>
+<tr><td>Convolutional Neural Network (CNN)</td><td>{$cnn}</td><td>{$cnnA}</td><td>{$cnnC}</td><td>30%</td></tr>
+<tr><td>VGG16 (transfer learning)</td><td>{$vgg}</td><td>{$vggA}</td><td>{$vggC}</td><td>35%</td></tr>
+<tr><td>ResNet50 (transfer learning)</td><td>{$resnet}</td><td>{$resA}</td><td>{$resC}</td><td>35%</td></tr>
+<tr class="ensemble-row"><td><strong>Ensemble consensus</strong></td><td><strong>{$finalEsc}</strong></td><td>n/a</td><td><strong>{$confidence}</strong></td><td><strong>{$agreement}</strong></td></tr>
 </tbody>
 </table>
 
@@ -181,12 +194,12 @@ Model agreement <strong>{$agreement}</strong>
 <table class="section-title" width="100%"><tr><td>6. Classification reference (four-class screening)</td></tr></table>
 <table class="legend-table" width="100%">
 <tr>
-<td class="leg-normal"><strong>Normal</strong> — No significant retinal abnormality on screening.</td>
-<td class="leg-cataract"><strong>Cataract</strong> — Lens opacity pattern; assess vision impact.</td>
+<td class="leg-normal"><strong>Normal</strong>. No significant retinal abnormality on screening.</td>
+<td class="leg-cataract"><strong>Cataract</strong>. Lens opacity pattern. Assess vision impact.</td>
 </tr>
 <tr>
-<td class="leg-dr"><strong>Diabetic Retinopathy</strong> — Vascular retinal changes; coordinate diabetes care.</td>
-<td class="leg-glaucoma"><strong>Glaucoma</strong> — Optic nerve / IOP risk pathway.</td>
+<td class="leg-dr"><strong>Diabetic Retinopathy</strong>. Vascular retinal changes. Coordinate diabetes care.</td>
+<td class="leg-glaucoma"><strong>Glaucoma</strong>. Optic nerve and IOP risk pathway.</td>
 </tr>
 </table>
 
@@ -234,7 +247,7 @@ HTML;
 <htmlpagefooter name="reportFooter">
 <table width="100%" class="run-ftr">
 <tr>
-<td width="70%">AI-assisted report — ophthalmologist validation required</td>
+<td width="70%">AI-assisted report. Ophthalmologist validation required.</td>
 <td width="30%" align="right">Page {PAGENO} of {nbpg}</td>
 </tr>
 </table>
@@ -266,7 +279,7 @@ HTML;
         return <<<HTML
 <div class="fundus-wrap">
 <img class="fundus-img" src="data:{$mime};base64,{$b64}" alt="Fundus photograph" />
-<div class="fundus-caption">Source: {$fileLabel} · Left/right eye not specified — confirm clinically</div>
+<div class="fundus-caption">Source: {$fileLabel}. Left/right eye not specified. Confirm clinically.</div>
 </div>
 HTML;
     }

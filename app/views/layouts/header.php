@@ -17,10 +17,11 @@ if (!defined('BASE_PATH')) {
 
     <meta name="app-base" content="<?= BASE_URL ?>">
 
-    <!-- 🔥 GLOBAL CSS (your custom) -->
+    <link rel="icon" type="image/png" href="<?= brand_logo_url() ?>">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/brand-logo.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/clinical-typography.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
-    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/clinical.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/clinical.css?v=<?= @filemtime(BASE_PATH . '/assets/css/clinical.css') ?: '1' ?>">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/clinical-ui.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/clinical-layout.css">
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/clinical-actions.css">
@@ -36,7 +37,18 @@ if (!defined('BASE_PATH')) {
     <!-- 🔥 OPTIONAL PAGE CSS -->
     <?php if (isset($page_css)) echo $page_css; ?>
 
-    <script src="<?= BASE_URL ?>/assets/js/clinical-diagnosis.js"></script>
+    <!-- Shared AI model benchmarks (config/ai_models.php) -->
+    <?php
+    $__aiModels = is_file(BASE_PATH . '/config/ai_models.php')
+        ? require BASE_PATH . '/config/ai_models.php'
+        : ['benchmark_accuracy' => [], 'ensemble_weights' => []];
+    ?>
+    <script>
+    window.MODEL_BENCHMARK_ACCURACY = <?= json_encode($__aiModels['benchmark_accuracy'] ?? new stdClass(), JSON_UNESCAPED_SLASHES) ?>;
+    window.ENSEMBLE_WEIGHTS = <?= json_encode($__aiModels['ensemble_weights'] ?? new stdClass(), JSON_UNESCAPED_SLASHES) ?>;
+    </script>
+
+    <script src="<?= BASE_URL ?>/assets/js/clinical-diagnosis.js?v=<?= @filemtime(BASE_PATH . '/assets/js/clinical-diagnosis.js') ?: '1' ?>"></script>
 
 </head>
 

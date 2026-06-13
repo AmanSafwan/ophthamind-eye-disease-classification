@@ -101,14 +101,17 @@ class AuditHelper
         $this->db = $db;
     }
 
-    /** Real-system style: CODE — human-readable title */
+    /** Real-system style: CODE: human-readable title */
     public static function action(string $code, string $title): string
     {
-        return strtoupper(trim($code)) . ' — ' . trim($title);
+        return strtoupper(trim($code)) . ': ' . trim($title);
     }
 
     public static function eventCode(string $summary): string
     {
+        if (strpos($summary, ': ') !== false) {
+            return trim(explode(': ', $summary, 2)[0]);
+        }
         if (strpos($summary, ' — ') !== false) {
             return trim(explode(' — ', $summary, 2)[0]);
         }
@@ -117,6 +120,9 @@ class AuditHelper
 
     public static function eventTitle(string $summary): string
     {
+        if (strpos($summary, ': ') !== false) {
+            return trim(explode(': ', $summary, 2)[1]);
+        }
         if (strpos($summary, ' — ') !== false) {
             return trim(explode(' — ', $summary, 2)[1]);
         }
@@ -427,7 +433,7 @@ class AuditHelper
 
     private static function detectModule(string $summary): string
     {
-        $code = strtoupper(trim(explode(' — ', $summary)[0] ?? $summary));
+        $code = self::eventCode($summary);
 
         if (str_starts_with($code, 'AUTH.')) {
             return 'Auth';

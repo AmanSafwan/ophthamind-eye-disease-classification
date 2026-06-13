@@ -1,0 +1,22 @@
+<?php
+
+/**
+ * Validated benchmark accuracy (%) on local fundus dataset — scripts/evaluate_models.py
+ * Last full eval: 2026-06-13 (ResNet50 keras rebuild)
+ */
+return [
+    'benchmark_accuracy' => [
+        'cnn' => 51.53,
+        'vgg16' => 91.01,
+        'resnet50' => 95.54,
+    ],
+    'ensemble_weights' => [
+        'cnn' => 0.30,
+        'vgg16' => 0.35,
+        'resnet50' => 0.35,
+    ],
+    'model_version' => [
+        'resnet50' => '2026-06-13',
+        'eval_source' => 'storage/logs/model_eval/model_eval_20260613_130215.json',
+    ],
+];

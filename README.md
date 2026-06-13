@@ -311,7 +311,7 @@ python ai_api\app.py
 Or run `start_flask.bat` on Windows.
 
 **Option B — Auto-start**  
-The PHP app attempts to launch the AI service in the background when a screening is requested. Logs: `storage/logs/ai_service.log`
+The PHP app attempts to launch the AI service in the background when a screening is requested. Logs: `writable/logs/ai_service.log`
 
 **Health check:** `http://127.0.0.1:5000/health`
 
@@ -331,33 +331,33 @@ Sessions are validated on every protected request — deleted accounts are immed
 ## Project Structure
 
 ```
-ophthamind-eye-disease-classification/
-├── ai/                          # ML assets
-│   ├── api/app.py               # Alternate Flask entry (development)
-│   └── models/                  # Trained .keras weights (not in Git)
-├── ai_api/app.py                # Production Flask entry (port 5000)
-├── app/
-│   ├── controllers/             # Auth, Admin, Ophthalmologist modules
+eye_system/
+├── app/                         # Application code (MVC)
+│   ├── Config/Routes.php        # Route definitions (CI4-style)
+│   ├── controllers/             # Auth, Admin, Ophthalmologist
 │   ├── core/                    # Router, base Controller
-│   ├── helpers/                 # Audit, Diagnosis, Role, Nav, Pagination
+│   ├── helpers/                 # Audit, Diagnosis, Role, Nav, …
 │   ├── middleware/              # Session & role enforcement
 │   ├── models/                  # Patient model
-│   ├── services/                # AI manager, analytics, PDF reports
-│   └── views/                   # PHP templates & layouts
-├── assets/                      # CSS, JS, AdminLTE
-├── config/                      # app.php, db.php, logout
-├── database/                    # Maintenance & migration scripts
-├── docs/                        # Supplementary documentation
-├── includes/                    # Layout forwarders
-├── routes/web.php               # Route definitions
-├── scripts/database/            # Seeding & data utilities
-├── storage/logs/                # Application & AI logs
-├── upload/                      # Fundus images (runtime)
-├── index.php                    # Front controller
+│   ├── services/                # AI manager, analytics, PDF
+│   └── views/                   # Templates & layouts
+├── public/                      # Web-accessible static files
+│   ├── assets/                  # CSS, JS, AdminLTE
+│   └── upload/                  # Fundus images (runtime)
+├── writable/                    # Logs, cache, hosting lock
+├── config/                      # app.php, db.php, ai_models
+├── database/                    # Migrations & maintenance CLI
+├── scripts/                     # Seeding, eval, deploy tools
+├── ai_api/app.py                # Production Flask AI (port 5001)
+├── ai/models/                   # Trained .keras weights (not in Git)
+├── deploy/                      # Hosting package templates
+├── index.php                    # Front controller (XAMPP entry)
 ├── composer.json
 ├── requirements.txt
 └── .env.example
 ```
+
+Full route map: [`app/Config/Routes.php`](app/Config/Routes.php)
 
 ---
 
@@ -383,7 +383,7 @@ ophthamind-eye-disease-classification/
 | GET | `ophthalmologist/exportPDF` | Download screening PDF |
 | GET | `ophthalmologist/history` | Clinician activity log |
 
-Full route map: [`routes/web.php`](routes/web.php)
+Full route map: [`app/Config/Routes.php`](app/Config/Routes.php)
 
 ---
 
@@ -436,7 +436,7 @@ Manual checklist:
 | Issue | Solution |
 |-------|----------|
 | `DB Connection Failed` | Verify MySQL is running; check `DB_PORT` in `.env` (3307 vs 3306) |
-| `AI service unavailable` | Run `python ai_api\app.py`; check `storage/logs/ai_service.log` |
+| `AI service unavailable` | Run `python ai_api\app.py`; check `writable/logs/ai_service.log` |
 | `Model not found` | Place `.keras` files under `ai/models/` |
 | PDF fails | Run `composer install`; enable PHP `gd` and `zip` |
 | Blank dashboard charts | Sign in again; ensure API routes return JSON (not login HTML) |

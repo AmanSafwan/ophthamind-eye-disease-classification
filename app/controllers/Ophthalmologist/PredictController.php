@@ -4,6 +4,7 @@ require_once BASE_PATH . '/app/middleware/role_check.php';
 require_once BASE_PATH . '/app/services/AiServiceManager.php';
 require_once BASE_PATH . '/app/services/ClinicalReportService.php';
 require_once BASE_PATH . '/app/helpers/DiagnosisHelper.php';
+require_once BASE_PATH . '/app/helpers/AiMetricsHelper.php';
 require_once BASE_PATH . '/app/helpers/AuditHelper.php';
 require_once BASE_PATH . '/app/models/Patient.php';
 
@@ -34,7 +35,7 @@ class PredictController extends Controller
             $ic = preg_replace('/[^0-9]/', '', trim($_POST['ic'] ?? ''));
 
             if (strlen($ic) !== 12) {
-                $this->auditLog(AuditHelper::action('PATIENT.IC_LOOKUP_REJECTED', 'Patient IC lookup rejected — invalid format'), [
+                $this->auditLog(AuditHelper::action('PATIENT.IC_LOOKUP_REJECTED', 'Patient IC lookup rejected, invalid format'), [
                     'ic' => $ic,
                     'outcome' => 'FAILED',
                     'reason' => 'IC must be exactly 12 digits',
@@ -51,7 +52,7 @@ class PredictController extends Controller
             if ($patient) {
                 $patient['ic'] = Patient::normalizeIc((string)$patient['ic']);
                 $patient['gender'] = $this->normalizeGender($patient['gender']);
-                $this->auditLog(AuditHelper::action('PATIENT.IC_LOOKUP_FOUND', 'Patient registry match — existing record loaded for screening'), array_merge(
+                $this->auditLog(AuditHelper::action('PATIENT.IC_LOOKUP_FOUND', 'Patient registry match, existing record loaded for screening'), array_merge(
                     AuditHelper::patientContextFromRow($patient),
                     ['outcome' => 'FOUND']
                 ));
@@ -63,7 +64,7 @@ class PredictController extends Controller
             }
 
             $info = $this->extractFromIC($ic);
-            $this->auditLog(AuditHelper::action('PATIENT.IC_LOOKUP_NEW', 'Patient IC verified — not in registry, registration required'), [
+            $this->auditLog(AuditHelper::action('PATIENT.IC_LOOKUP_NEW', 'Patient IC verified, not in registry, registration required'), [
                 'ic' => $ic,
                 'outcome' => 'NOT_REGISTERED',
                 'age' => $info['age'],
@@ -162,7 +163,7 @@ class PredictController extends Controller
             if ($patientId <= 0 || !$image) {
                 return $this->json([
                     'success' => false,
-                    'message' => 'Missing patient or image — search the patient again before scanning'
+                    'message' => 'Missing patient or image. Search the patient again before scanning.'
                 ]);
             }
 
@@ -171,7 +172,7 @@ class PredictController extends Controller
             if (!$patientCheck->fetchColumn()) {
                 return $this->json([
                     'success' => false,
-                    'message' => 'Patient not found — refresh IC search and try again'
+                    'message' => 'Patient not found. Refresh IC search and try again.'
                 ]);
             }
 
@@ -277,7 +278,7 @@ class PredictController extends Controller
 
             $predictionId = (int)$this->db->lastInsertId();
             $this->auditLog(
-                AuditHelper::action('PREDICT.SCREENING_COMPLETED', 'Fundus image analysed — AI screening saved to patient record'),
+                AuditHelper::action('PREDICT.SCREENING_COMPLETED', 'Fundus image analysed, AI screening saved to patient record'),
                 array_merge(
                     $this->audit->patientContextById((int)$patientId),
                     AuditHelper::screeningResultContext($result, $predictionId),
@@ -304,7 +305,7 @@ class PredictController extends Controller
                 $failCtx = array_merge($failCtx, $this->audit->patientContextById((int)$patientId));
             }
             $this->auditLog(
-                AuditHelper::action('PREDICT.SCREENING_FAILED', 'Fundus AI screening failed — no record saved'),
+                AuditHelper::action('PREDICT.SCREENING_FAILED', 'Fundus AI screening failed, no record saved'),
                 $failCtx
             );
             return $this->json([
@@ -353,6 +354,9 @@ class PredictController extends Controller
                     pr.final_result,
                     pr.confidence,
                     pr.final_confidence,
+                    pr.cnn_confidence,
+                    pr.vgg_confidence,
+                    pr.resnet_confidence,
                     pr.model_agreement_score,
                     pr.risk_level,
                     pr.created_at,
@@ -601,57 +605,39 @@ class PredictController extends Controller
         $confidence = round($confidence, 2);
 
         // =====================
-        // MODEL AGREEMENT SCORE
+        // MODEL AGREEMENT (accuracy × confidence composite)
         // =====================
-        $agreementScore = isset($result['model_agreement_score'])
-            ? (float)$result['model_agreement_score']
-            : (count(array_filter(
-                [$cnnResult, $vggResult, $resnetResult],
-                fn($v) => $v === $finalResult
-            )) / 3) * 100;
+        $agreementMetrics = AiMetricsHelper::computeAgreementMetrics(
+            $cnnResult,
+            $vggResult,
+            $resnetResult,
+            $cnnConfidence,
+            $vggConfidence,
+            $resnetConfidence,
+            $finalResult
+        );
 
-        $agreementScore = round($agreementScore, 2);
-
-        // =====================
-        // 🔥 HYBRID RISK ENGINE (REAL WORLD LOGIC)
-        // =====================
-
-        // 1. Base medical severity
-        $baseRiskMap = [
-            'Normal'               => 1,
-            'Cataract'             => 2,
-            'Diabetic Retinopathy' => 3,
-            'Glaucoma'             => 3
-        ];
-
-        $baseRisk = $baseRiskMap[$finalResult] ?? $baseRiskMap[DiagnosisHelper::normalize($finalResult)] ?? 0;
-
-        // 2. Confidence weight
-        if ($confidence >= 85) {
-            $confidenceScore = 1.0;
-        } elseif ($confidence >= 60) {
-            $confidenceScore = 0.7;
-        } else {
-            $confidenceScore = 0.4;
+        if (isset($result['model_agreement_score'])) {
+            $agreementMetrics['model_agreement_score'] = round((float)$result['model_agreement_score'], 2);
+        }
+        if (isset($result['agreement_label_pct'])) {
+            $agreementMetrics['agreement_label_pct'] = round((float)$result['agreement_label_pct'], 2);
+        }
+        if (isset($result['agreement_accuracy_pct'])) {
+            $agreementMetrics['agreement_accuracy_pct'] = round((float)$result['agreement_accuracy_pct'], 2);
+        }
+        if (isset($result['agreement_confidence_pct'])) {
+            $agreementMetrics['agreement_confidence_pct'] = round((float)$result['agreement_confidence_pct'], 2);
         }
 
-        // 3. Agreement normalization (0–1)
-        $agreementNormalized = $agreementScore / 100;
+        $agreementScore = (float)$agreementMetrics['model_agreement_score'];
 
-        // 4. Final weighted score
-        $finalRiskScore =
-            ($baseRisk * 0.5) +
-            ($confidenceScore * 2 * 0.3) +
-            ($agreementNormalized * 2 * 0.2);
-
-        // 5. Convert to label
-        if ($finalRiskScore >= 2.5) {
-            $risk = 'High';
-        } elseif ($finalRiskScore >= 1.5) {
-            $risk = 'Medium';
-        } else {
-            $risk = 'Low';
-        }
+        $risk = DiagnosisHelper::computeRiskLevel($finalResult, $confidence, $agreementScore);
+        $finalRiskScore = match ($risk) {
+            'High' => 3,
+            'Medium' => 2,
+            default => 1,
+        };
 
         // =====================
         // RETURN FINAL DATA
@@ -676,8 +662,22 @@ class PredictController extends Controller
             // CLINICAL INTELLIGENCE
             'risk_level'            => $risk,
             'model_agreement_score'=> $agreementScore,
+            'agreement_label_pct'   => $agreementMetrics['agreement_label_pct'],
+            'agreement_accuracy_pct'=> $agreementMetrics['agreement_accuracy_pct'],
+            'agreement_confidence_pct' => $agreementMetrics['agreement_confidence_pct'],
 
-            // 🔥 BONUS (for explainability / panel impress)
+            // BENCHMARK ACCURACY (validation set %)
+            'cnn_accuracy'    => $agreementMetrics['cnn_accuracy'],
+            'vgg_accuracy'    => $agreementMetrics['vgg_accuracy'],
+            'resnet_accuracy' => $agreementMetrics['resnet_accuracy'],
+
+            'clinical_note' => DiagnosisHelper::clinicalNoteFromModels(
+                $cnnResult,
+                $vggResult,
+                $resnetResult,
+                $finalResult
+            ),
+
             'risk_score' => round($finalRiskScore, 2)
         ];
     }
@@ -691,6 +691,59 @@ class PredictController extends Controller
         $row['cnn_result'] = DiagnosisHelper::normalize($row['cnn_result'] ?? '');
         $row['vgg_result'] = DiagnosisHelper::normalize($row['vgg_result'] ?? '');
         $row['resnet_result'] = DiagnosisHelper::normalize($row['resnet_result'] ?? '');
+
+        $cnnConf = (float)($row['cnn_confidence'] ?? 0);
+        $vggConf = (float)($row['vgg_confidence'] ?? 0);
+        $resnetConf = (float)($row['resnet_confidence'] ?? 0);
+        $hasCaseConfidence = $cnnConf > 0 && $vggConf > 0 && $resnetConf > 0;
+
+        $metrics = AiMetricsHelper::computeAgreementMetrics(
+            $row['cnn_result'],
+            $row['vgg_result'],
+            $row['resnet_result'],
+            $cnnConf,
+            $vggConf,
+            $resnetConf,
+            $row['final_result']
+        );
+
+        $row['cnn_accuracy'] = $metrics['cnn_accuracy'];
+        $row['vgg_accuracy'] = $metrics['vgg_accuracy'];
+        $row['resnet_accuracy'] = $metrics['resnet_accuracy'];
+
+        if ($hasCaseConfidence) {
+            $row['agreement_label_pct'] = $metrics['agreement_label_pct'];
+            $row['agreement_accuracy_pct'] = $metrics['agreement_accuracy_pct'];
+            $row['agreement_confidence_pct'] = $metrics['agreement_confidence_pct'];
+            $row['model_agreement_score'] = $metrics['model_agreement_score'];
+        } else {
+            if (!isset($row['model_agreement_score']) || $row['model_agreement_score'] === null || $row['model_agreement_score'] === '') {
+                $row['model_agreement_score'] = $metrics['model_agreement_score'];
+            }
+            foreach (['agreement_label_pct', 'agreement_accuracy_pct', 'agreement_confidence_pct'] as $key) {
+                if (!isset($row[$key]) || $row[$key] === null || $row[$key] === '') {
+                    $row[$key] = $metrics[$key];
+                }
+            }
+        }
+
+        $row['clinical_note'] = DiagnosisHelper::clinicalNoteFromModels(
+            $row['cnn_result'],
+            $row['vgg_result'],
+            $row['resnet_result'],
+            $row['final_result']
+        );
+
+        $certainty = (float)($row['final_confidence'] ?? $row['confidence'] ?? 0);
+        if ($certainty > 0 && $certainty <= 1) {
+            $certainty *= 100;
+        }
+        $row['risk_level'] = DiagnosisHelper::computeRiskLevel(
+            $row['final_result'],
+            $certainty,
+            (float)($row['model_agreement_score'] ?? 0)
+        );
+
         return $row;
     }
 
@@ -853,6 +906,13 @@ class PredictController extends Controller
     {
         $this->checkAuth();
 
+        if (!AiServiceManager::isEnabled()) {
+            return $this->json([
+                'online' => false,
+                'message' => 'AI offline',
+            ]);
+        }
+
         try {
             if (!AiServiceManager::isHealthy()) {
                 try {
@@ -860,22 +920,26 @@ class PredictController extends Controller
                 } catch (Throwable $startErr) {
                     return $this->json([
                         'online' => false,
-                        'message' => $startErr->getMessage(),
-                    ], 503);
+                        'message' => 'AI offline',
+                    ]);
                 }
             }
 
-            $online = AiServiceManager::isHealthy();
+            $health = AiServiceManager::fetchHealth();
+            $online = $health !== null;
 
             return $this->json([
                 'online' => $online,
-                'message' => $online ? 'AI engine ready' : 'Starting AI engine…',
+                'message' => $online ? 'AI ready' : 'Starting AI…',
+                'models_loaded_at' => $health['loaded_at'] ?? null,
+                'models' => $health['models'] ?? AiServiceManager::diskModelManifest(),
+                'stale' => $online ? AiServiceManager::modelsNeedReload() : false,
             ]);
         } catch (Throwable $e) {
             return $this->json([
                 'online' => false,
-                'message' => $e->getMessage(),
-            ], 503);
+                'message' => 'AI offline',
+            ]);
         }
     }
 }

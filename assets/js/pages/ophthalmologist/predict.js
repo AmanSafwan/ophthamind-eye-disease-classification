@@ -26,7 +26,7 @@ let historySubtitle = null;
 let historyRecordCount = null;
 let predictSplit = null;
 let pendingPredictView = null;
-const HISTORY_COLSPAN = 6;
+const HISTORY_COLSPAN = 7;
 const CLINICAL_DOCTOR_ID = typeof window.CLINICAL_DOCTOR_ID === 'number'
     ? window.CLINICAL_DOCTOR_ID
     : parseInt(window.CLINICAL_DOCTOR_ID || '0', 10) || 0;
@@ -55,7 +55,7 @@ function warmAiEngine() {
     clinicalFetch('ophthalmologist/aiStatus')
         .then(res => res.json())
         .then(data => updateAiStatusPill(data.online, data.message))
-        .catch(() => updateAiStatusPill(false, 'AI unavailable'));
+        .catch(() => updateAiStatusPill(false, 'AI offline'));
 }
 
 function updateAiStatusPill(online, message) {
@@ -64,7 +64,7 @@ function updateAiStatusPill(online, message) {
     pill.classList.toggle('online', !!online);
     pill.classList.toggle('offline', !online);
     const text = pill.querySelector('.status-text');
-    if (text) text.textContent = message || (online ? 'AI Engine Online' : 'AI Engine Offline');
+    if (text) text.textContent = message || (online ? 'AI ready' : 'AI offline');
 }
 
 function initializeEventListeners() {
@@ -559,7 +559,7 @@ function runPrediction() {
 
     predictBtn.disabled = true;
 
-    showLoading('Analyzing image...', 'Starting AI engine if needed — first run may take up to 30 seconds');
+    showLoading('Analyzing image...', 'Starting AI if needed. First run may take up to 30 seconds.');
 
     const formData = new FormData();
     formData.append('patient_id', String(currentPatient.id));
@@ -583,7 +583,7 @@ function runPrediction() {
             loadPredictions(currentPatient.id);
             updateWorkflowSteps('history');
             scrollToPredictView('history');
-            showToast('Screening saved — listed in prediction history below', 'success');
+            showToast('Screening saved. Listed in prediction history below.', 'success');
         } else {
             showToast(data.message || 'Prediction failed', 'error');
         }
@@ -599,28 +599,163 @@ function runPrediction() {
 // ========================================
 // RESULT MODAL (single screen, no scroll)
 // ========================================
-function buildModelChip(cssClass, title, label, conf) {
-    const c = Math.min(100, Math.max(0, parseFloat(conf) || 0));
+const MODEL_BENCHMARK = window.MODEL_BENCHMARK_ACCURACY || {
+    cnn: 51.53,
+    vgg16: 91.01,
+    resnet50: 95.54,
+};
+const ENSEMBLE_WEIGHTS = window.ENSEMBLE_WEIGHTS || { cnn: 0.30, vgg16: 0.35, resnet50: 0.35 };
+
+function clampPct(value) {
+    const n = parseFloat(value);
+    if (Number.isNaN(n)) return 0;
+    const pct = n > 0 && n <= 1 ? n * 100 : n;
+    return Math.min(100, Math.max(0, pct));
+}
+
+function metricBarColor(pct) {
+    return (typeof window.getMetricBarColor === 'function')
+        ? window.getMetricBarColor(pct)
+        : '#2e7d32';
+}
+
+function metricBarInline(pct) {
+    return (typeof window.metricBarStyle === 'function')
+        ? window.metricBarStyle(pct)
+        : `width:${clampPct(pct)}%;background:${metricBarColor(pct)}`;
+}
+
+function buildMetricRow(label, value, decimals) {
+    const v = clampPct(value);
+    const color = metricBarColor(v);
+    const pctText = (decimals === 2 ? v.toFixed(2) : v.toFixed(1)) + '%';
     return `
-        <div class="ai-model-chip ${cssClass}">
-            <div class="model-chip-head">
-                <span class="model-name">${title}</span>
-                <span class="model-conf">${c.toFixed(1)}%</span>
+        <div class="linked-metric-row">
+            <div class="linked-metric-head">
+                <span class="linked-metric-label">${label}</span>
+                <span class="linked-metric-pct" style="color:${color}">${pctText}</span>
             </div>
-            <div class="model-dx" title="${escapeHtml(label)}">${escapeHtml(label || '-')}</div>
-            <div class="model-bar" aria-hidden="true"><span style="width:${c}%"></span></div>
+            <div class="model-bar" aria-hidden="true"><span class="bar-value" style="${metricBarInline(v)}"></span></div>
         </div>
     `;
 }
 
-function buildAgreementBox(agreement) {
-    const pct = Math.min(100, Math.max(0, parseFloat(agreement) || 0));
+/** Certainty + Agreement for report modal ensemble card. */
+function buildLinkedMetricsBlock(certainty, agreement) {
     return `
-        <div class="ai-agreement-box">
-            <span class="ai-agreement-label">Agreement</span>
-            <span class="ai-agreement-val">${pct.toFixed(1)}%</span>
-            <span class="ai-agreement-sub">Ensemble consistency</span>
-            <div class="ai-agreement-bar" aria-hidden="true"><span style="width:${pct}%"></span></div>
+        <div class="linked-metric-block">
+            ${buildMetricRow('Certainty', certainty, 1)}
+            ${buildMetricRow('Agreement', agreement, 1)}
+        </div>
+    `;
+}
+
+function screeningMetricsFromRow(row) {
+    if (typeof window.resolveScreeningMetrics === 'function') {
+        return window.resolveScreeningMetrics(row);
+    }
+    return {
+        certainty: clampPct(row?.final_confidence ?? row?.confidence ?? 0),
+        agreement: clampPct(row?.model_agreement_score ?? 0),
+        aligned: 0,
+    };
+}
+
+function resolveAgreementMetrics(result) {
+    if (!result || typeof result !== 'object') {
+        return { label: 0, accuracy: 0, confidence: 0, composite: 0 };
+    }
+
+    if (typeof window.computeAgreementMetrics === 'function') {
+        const computed = window.computeAgreementMetrics(result);
+        return {
+            label: clampPct(result.agreement_label_pct ?? computed.label),
+            accuracy: clampPct(result.agreement_accuracy_pct ?? computed.accuracy),
+            confidence: clampPct(result.agreement_confidence_pct ?? computed.confidence),
+            composite: clampPct(computed.composite),
+            models: computed.models || [],
+        };
+    }
+
+    const final = normalizeDiagnosis(result.final_result || 'Normal');
+    const models = [
+        { key: 'cnn', label: normalizeDiagnosis(result.cnn_result), confidence: clampPct(result.cnn_confidence), accuracy: clampPct(result.cnn_accuracy ?? MODEL_BENCHMARK.cnn) },
+        { key: 'vgg16', label: normalizeDiagnosis(result.vgg_result), confidence: clampPct(result.vgg_confidence), accuracy: clampPct(result.vgg_accuracy ?? MODEL_BENCHMARK.vgg16) },
+        { key: 'resnet50', label: normalizeDiagnosis(result.resnet_result), confidence: clampPct(result.resnet_confidence), accuracy: clampPct(result.resnet_accuracy ?? MODEL_BENCHMARK.resnet50) },
+    ];
+
+    const labels = models.map((m) => m.label);
+    const counts = {};
+    labels.forEach((l) => { counts[l] = (counts[l] || 0) + 1; });
+    const majority = Object.keys(counts).reduce((best, key) =>
+        (counts[key] > (counts[best] || 0) ? key : best), labels[0]);
+    const labelConcordance = (labels.filter((l) => l === majority).length / 3) * 100;
+
+    let weightedConfidence = 0;
+    let weightSum = 0;
+    models.forEach((m) => {
+        const w = ENSEMBLE_WEIGHTS[m.key] || 0;
+        weightedConfidence += w * (m.accuracy / 100) * (m.confidence / 100);
+        weightSum += w;
+    });
+    weightedConfidence = weightSum > 0 ? (weightedConfidence / weightSum) * 100 : 0;
+
+    const aligned = models.filter((m) => m.label === final);
+    let agreementAccuracy = 0;
+    let agreementConfidence = weightedConfidence * 0.5;
+    if (aligned.length) {
+        agreementAccuracy = aligned.reduce((s, m) => s + m.accuracy, 0) / aligned.length;
+        const accSum = aligned.reduce((s, m) => s + m.accuracy, 0);
+        agreementConfidence = accSum > 0
+            ? aligned.reduce((s, m) => s + m.accuracy * m.confidence, 0) / accSum
+            : 0;
+    }
+
+    const compositeFromParts = (0.35 * labelConcordance)
+        + (0.35 * agreementAccuracy)
+        + (0.30 * agreementConfidence);
+    const hasCaseConfidence = models.every((m) => m.confidence > 0);
+    const composite = hasCaseConfidence
+        ? compositeFromParts
+        : clampPct(result.model_agreement_score ?? compositeFromParts);
+
+    return {
+        label: result.agreement_label_pct != null ? clampPct(result.agreement_label_pct) : labelConcordance,
+        accuracy: result.agreement_accuracy_pct != null ? clampPct(result.agreement_accuracy_pct) : agreementAccuracy,
+        confidence: result.agreement_confidence_pct != null ? clampPct(result.agreement_confidence_pct) : agreementConfidence,
+        composite,
+        models,
+    };
+}
+
+function buildModelChip(cssClass, title, label, confidence, accuracy) {
+    return `
+        <div class="ai-model-chip ${cssClass}">
+            <span class="model-name">${title}</span>
+            <div class="model-dx" title="${escapeHtml(label)}">${escapeHtml(label || '-')}</div>
+            <div class="linked-metric-block">
+                ${buildMetricRow('Confidence', confidence, 1)}
+                ${buildMetricRow('Accuracy', accuracy, 2)}
+            </div>
+        </div>
+    `;
+}
+
+function buildEnsembleChip(finalLabel, certainty, agreementMetrics) {
+    const cert = clampPct(certainty);
+    const agr = clampPct(agreementMetrics.composite);
+    const models = agreementMetrics.models || [];
+    const normalizedFinal = normalizeDiagnosis(finalLabel);
+    const aligned = models.length
+        ? models.filter((m) => m.label === normalizedFinal).length
+        : 3;
+    const agreeText = `${aligned}/3 models agree`;
+
+    return `
+        <div class="ai-model-chip ensemble">
+            <span class="model-name">Ensemble</span>
+            <div class="model-dx" title="${escapeHtml(agreeText)}">${escapeHtml(agreeText)}</div>
+            ${buildLinkedMetricsBlock(cert, agr)}
         </div>
     `;
 }
@@ -638,8 +773,9 @@ function showResultModal(result) {
     const risk = (result.risk_level || 'Unknown').toString();
     const riskKey = risk.toLowerCase() === 'high' ? 'risk-high' : (risk.toLowerCase() === 'medium' ? 'risk-medium' : 'risk-low');
     const theme = getDiagnosisTheme(label);
-    const confidence = parseFloat(result.final_confidence ?? result.confidence ?? 0);
-    const agreement = parseFloat(result.model_agreement_score ?? 0);
+    const linked = screeningMetricsFromRow(result);
+    const agreement = resolveAgreementMetrics(result);
+    const bench = window.MODEL_BENCHMARK_ACCURACY || MODEL_BENCHMARK;
     const imgSrc = window.lastUploadedImage || result.image_url || '';
     const doctorName = result.doctor_name ? escapeHtml(result.doctor_name) : '';
     const screenedAt = result.created_at ? escapeHtml(splitDateTime(result.created_at).date + ' ' + splitDateTime(result.created_at).time) : '';
@@ -656,22 +792,41 @@ function showResultModal(result) {
                 <div class="ai-result-hero ${theme.class}">
                     <h3><i class="fas ${theme.icon} mr-2"></i>${escapeHtml(label)}</h3>
                     <div class="ai-result-meta">
-                        <span class="ai-confidence-badge">${confidence.toFixed(1)}% confidence</span>
                         <span class="ai-risk-badge ${riskKey}">${escapeHtml(risk)} risk</span>
                         ${clinicianMeta}
                         ${screenedAt ? `<span class="ai-screened-at-badge">${screenedAt}</span>` : ''}
                     </div>
                 </div>
             </div>
+
             <div class="ai-ensemble-grid">
-                ${buildModelChip('cnn', 'CNN', normalizeDiagnosis(result.cnn_result), result.cnn_confidence)}
-                ${buildModelChip('vgg', 'VGG16', normalizeDiagnosis(result.vgg_result), result.vgg_confidence)}
-                ${buildModelChip('resnet', 'ResNet', normalizeDiagnosis(result.resnet_result), result.resnet_confidence)}
-                ${buildAgreementBox(agreement)}
+                ${buildModelChip('cnn', 'CNN', normalizeDiagnosis(result.cnn_result), result.cnn_confidence, result.cnn_accuracy ?? bench.cnn)}
+                ${buildModelChip('vgg', 'VGG16', normalizeDiagnosis(result.vgg_result), result.vgg_confidence, result.vgg_accuracy ?? bench.vgg16)}
+                ${buildModelChip('resnet', 'ResNet', normalizeDiagnosis(result.resnet_result), result.resnet_confidence, result.resnet_accuracy ?? bench.resnet50)}
+                ${buildEnsembleChip(label, linked.certainty, { composite: linked.agreement, models: agreement.models })}
             </div>
+            <div class="ai-metrics-legend" role="note" aria-label="Metric guide">
+                <span class="ai-metrics-legend-item">
+                    <strong>Certainty</strong>
+                    Combined AI strength for the final diagnosis on this scan
+                </span>
+                <span class="ai-metrics-legend-item">
+                    <strong>Agreement</strong>
+                    How closely CNN, VGG16 and ResNet align on this case
+                </span>
+                <span class="ai-metrics-legend-item">
+                    <strong>Accuracy</strong>
+                    Each model's validated clinical performance rating
+                </span>
+            </div>
+
             <div class="ai-clinical-note">
                 <span class="ai-clinical-note-label">Clinical note</span>
-                <p class="ai-interpretation">${escapeHtml(getDiagnosisSuggestion(label))}</p>
+                <p class="ai-interpretation">${escapeHtml(
+                    (result.cnn_result != null && result.vgg_result != null && result.resnet_result != null)
+                        ? getDiagnosisSuggestion(result)
+                        : (result.clinical_note || getDiagnosisSuggestion(result))
+                )}</p>
             </div>
         </div>
     `;
@@ -739,7 +894,7 @@ function loadPredictions(patientId) {
 
     if (historySubtitle && currentPatient) {
         historySubtitle.textContent =
-            `All screenings for ${currentPatient.name} (IC ${currentPatient.ic}) — every clinician in the registry`;
+            `All screenings for ${currentPatient.name} (IC ${currentPatient.ic}), across all clinicians in the registry`;
     }
 
     clinicalFetch(`ophthalmologist/getPredictions&patient_id=${encodeURIComponent(patientId)}`)
@@ -786,60 +941,75 @@ function loadPredictions(patientId) {
             items.forEach(row => {
                 const dxLabel         = normalizeDiagnosis(row.final_result ?? '');
                 const finalResult     = escapeHtml(dxLabel);
-                const confidence      = parseFloat(row.confidence ?? 0);
-                const finalConfidence = parseFloat(row.final_confidence ?? 0);
+                const metrics = screeningMetricsFromRow(row);
+                const certainty = clampPct(metrics.certainty);
+                const agreement = clampPct(metrics.agreement);
+                const certaintyColor = metricBarColor(certainty);
+                const agreementColor = metricBarColor(agreement);
                 const dxClass = getClinicalDxClass(dxLabel);
                 const risk = (row.risk_level ?? 'unknown').toLowerCase();
                 const riskClass = risk === 'low' ? 'risk-low' : (risk === 'medium' ? 'risk-medium' : (risk === 'high' ? 'risk-high' : ''));
                 const dt = splitDateTime(row.created_at);
-                const doctorName = escapeHtml(row.doctor_name || 'Unassigned clinician');
+                const doctorName = escapeHtml(row.doctor_name || 'Unassigned');
                 const isMine = row.is_mine === true
                     || (CLINICAL_DOCTOR_ID > 0 && parseInt(row.doctor_id, 10) === CLINICAL_DOCTOR_ID);
                 const clinicianCell = isMine
-                    ? `<span class="history-clinician-name">${doctorName}</span><span class="history-clinician-you">You</span>`
-                    : `<span class="history-clinician-name">${doctorName}</span>`;
+                    ? `${doctorName} <span class="history-clinician-you">You</span>`
+                    : doctorName;
 
                 html += `
-                    <tr>
-                        <td>
-                            <span class="history-date-main">${dt.date}</span>
-                            <span class="history-date-sub">${dt.time}</span>
-                        </td>
-                        <td class="history-clinician-cell">${clinicianCell}</td>
-                        <td>
-                            <span class="clinical-badge-dx ${dxClass}">${finalResult}</span>
-                            <span class="clinical-badge-risk ${riskClass}">${escapeHtml(row.risk_level ?? 'Unknown')} risk</span>
-                        </td>
-                        <td class="clinical-conf-wrap">
-                            <div class="clinical-conf-bar"><span style="width:${Math.min(100, confidence)}%"></span></div>
-                            <span class="clinical-conf-pct">${confidence.toFixed(1)}%</span>
-                            <span class="clinical-conf-final">Ensemble ${finalConfidence.toFixed(1)}%</span>
-                        </td>
-                        <td>
-                            <div class="predict-model-grid">
-                                <span><strong>CNN</strong> ${escapeHtml(normalizeDiagnosis(row.cnn_result ?? ''))}</span>
-                                <span><strong>VGG</strong> ${escapeHtml(normalizeDiagnosis(row.vgg_result ?? ''))}</span>
-                                <span><strong>ResNet</strong> ${escapeHtml(normalizeDiagnosis(row.resnet_result ?? ''))}</span>
+                    <tr class="history-row" onclick="viewPrediction(${row.id})" role="button" tabindex="0"
+                        onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();viewPrediction(${row.id});}">
+                        <td class="history-date-cell">
+                            <div class="history-cell-inner">
+                                <span class="history-date-main">${dt.date}</span>
+                                <span class="history-date-sub">${dt.time}</span>
                             </div>
                         </td>
-                        <td class="clinical-action-cell">
-                            <div class="clinical-action-group">
-                                <button type="button" class="btn btn-clinical-predict"
-                                        onclick="viewPrediction(${row.id})" title="View">
-                                    <i class="fas fa-eye"></i><span>View</span>
-                                </button>
-                                <button type="button" class="btn btn-clinical-edit"
-                                        onclick="rerunPrediction(${row.id})" title="Re-run">
-                                    <i class="fas fa-redo"></i><span>Re-run</span>
+                        <td class="history-dx-cell">
+                            <div class="history-cell-inner">
+                                <span class="clinical-badge-dx ${dxClass}">${finalResult}</span>
+                            </div>
+                        </td>
+                        <td class="history-risk-cell">
+                            <div class="history-cell-inner">
+                                <span class="history-risk-text ${riskClass}">${escapeHtml(row.risk_level ?? 'Unknown')}</span>
+                            </div>
+                        </td>
+                        <td class="history-certainty-cell">
+                            <div class="history-cell-inner">
+                                <span class="history-metric-value" style="color:${certaintyColor}">${certainty.toFixed(1)}%</span>
+                            </div>
+                        </td>
+                        <td class="history-agreement-cell">
+                            <div class="history-cell-inner">
+                                <span class="history-metric-value" style="color:${agreementColor}">${agreement.toFixed(1)}%</span>
+                            </div>
+                        </td>
+                        <td class="history-clinician-cell">
+                            <div class="history-cell-inner history-clinician-inner">${clinicianCell}</div>
+                        </td>
+                        <td class="history-actions-cell" onclick="event.stopPropagation()">
+                            <div class="history-cell-inner">
+                            <div class="history-actions">
+                                <button type="button" class="history-action-btn is-primary"
+                                        onclick="viewPrediction(${row.id})" title="View report" aria-label="View report">
+                                    <i class="fas fa-eye"></i>
                                 </button>
                                 <a href="${apiUrl('ophthalmologist/exportPDF')}&id=${row.id}&_ts=${Date.now()}"
-                                   class="btn btn-clinical-pdf" title="PDF" target="_blank" rel="noopener">
-                                    <i class="fas fa-file-pdf"></i><span>PDF</span>
+                                   class="history-action-btn" title="PDF" aria-label="Download PDF"
+                                   target="_blank" rel="noopener" onclick="event.stopPropagation()">
+                                    <i class="fas fa-file-pdf"></i>
                                 </a>
-                                <button type="button" class="btn btn-clinical-delete"
-                                        onclick="deletePrediction(${row.id})" title="Delete">
-                                    <i class="fas fa-trash-alt"></i><span>Delete</span>
+                                <button type="button" class="history-action-btn"
+                                        onclick="rerunPrediction(${row.id})" title="Re-run" aria-label="Re-run screening">
+                                    <i class="fas fa-redo"></i>
                                 </button>
+                                <button type="button" class="history-action-btn is-danger"
+                                        onclick="deletePrediction(${row.id})" title="Delete" aria-label="Delete record">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
                             </div>
                         </td>
                     </tr>

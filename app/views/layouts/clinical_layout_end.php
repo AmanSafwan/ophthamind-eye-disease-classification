@@ -5,7 +5,16 @@
 <footer class="main-footer clinical-footer">
     <div class="clinical-footer-grid">
         <div class="clinical-footer-brand">
-            <div class="clinical-footer-logo"><i class="fas fa-eye"></i> OphthaMind AI</div>
+            <div class="clinical-footer-logo">
+                <img
+                    src="<?= htmlspecialchars(brand_logo_url()) ?>"
+                    alt="OphthaMind"
+                    class="ophthamind-logo"
+                    width="160"
+                    height="44"
+                    decoding="async"
+                >
+            </div>
             <p>Clinical decision support for ophthalmology. Ensemble deep-learning screening with secure patient workflows.</p>
             <span class="clinical-footer-version">Platform v1.0 · FYP <?= date('Y') ?></span>
         </div>

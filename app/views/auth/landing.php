@@ -39,7 +39,8 @@ $showRegister = isset($_GET['register']) || (isset($_GET['tab']) && $_GET['tab']
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('assets/adminlte/plugins/fontawesome-free/css/all.min.css')) ?>">
-    <link rel="stylesheet" href="<?= htmlspecialchars(asset_url('assets/css/pages/auth/landing.css')) ?>">
+    <link rel="icon" type="image/png" href="<?= htmlspecialchars(brand_logo_url()) ?>">
+    <?= landing_page_styles() ?>
 </head>
 
 <body class="landing-page">
@@ -57,11 +58,14 @@ $showRegister = isset($_GET['register']) || (isset($_GET['tab']) && $_GET['tab']
 
             <header class="story-header">
                 <a href="<?= htmlspecialchars($base) ?>/" class="story-logo">
-                    <span class="story-logo-icon"><i class="fas fa-eye"></i></span>
-                    <span>
-                        <strong>OphthaMind AI</strong>
-                        <small>Clinical eye intelligence</small>
-                    </span>
+                    <img
+                        src="<?= htmlspecialchars(brand_logo_url()) ?>"
+                        alt="OphthaMind"
+                        class="ophthamind-logo"
+                        width="200"
+                        height="56"
+                        decoding="async"
+                    >
                 </a>
             </header>
 
@@ -132,6 +136,16 @@ $showRegister = isset($_GET['register']) || (isset($_GET['tab']) && $_GET['tab']
 
             <div class="access-panel">
                 <div class="access-panel-head">
+                    <div class="access-brand" aria-hidden="true">
+                        <img
+                            src="<?= htmlspecialchars(brand_logo_url()) ?>"
+                            alt=""
+                            class="ophthamind-logo"
+                            width="180"
+                            height="52"
+                            decoding="async"
+                        >
+                    </div>
                     <h2 id="accessTitle"><?= $showRegister ? 'Create account' : 'Clinician sign in' ?></h2>
                     <p id="accessSubtitle"><?= $showRegister ? 'Register to access the clinical workspace.' : 'Enter your credentials to continue.' ?></p>
                 </div>

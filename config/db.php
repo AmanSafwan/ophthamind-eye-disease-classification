@@ -40,6 +40,10 @@ if (!function_exists('app_db')) {
             }
         }
 
+        if (function_exists('redirect_to_hosting_setup')) {
+            redirect_to_hosting_setup();
+        }
+
         die('DB Connection Failed: ' . ($lastError ? $lastError->getMessage() : 'Unknown error'));
     }
 }

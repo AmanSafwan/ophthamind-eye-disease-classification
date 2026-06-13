@@ -45,7 +45,7 @@ class HistoryController extends Controller
         $hasFilters = $filters['q'] !== '' || $filters['date_from'] !== '' || $filters['date_to'] !== '';
         $filterLabel = $this->buildFilterLabel($filters, $hasFilters);
 
-        $this->auditLog(AuditHelper::action('AUDIT.TRAIL_VIEW', 'Opened clinical audit trail — activity log'), [
+        $this->auditLog(AuditHelper::action('AUDIT.TRAIL_VIEW', 'Opened clinical audit trail activity log'), [
             'outcome' => 'SUCCESS',
             'records' => $totalLogs . ' log entry(ies) in scope',
             'screenings' => $clinical['screenings'] . ' AI screening(s) in period',

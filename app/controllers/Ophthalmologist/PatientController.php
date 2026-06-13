@@ -96,7 +96,7 @@ class PatientController extends Controller
         $gender = $this->normalizePatientGender($gender);
 
         if ($id <= 0 || $name === '' || $age < 0 || $age > 120 || !in_array($gender, ['Male', 'Female'], true)) {
-            return $this->json(['success' => false, 'message' => 'Invalid patient data — check name, age (0–120), and gender']);
+            return $this->json(['success' => false, 'message' => 'Invalid patient data. Check name, age (0 to 120), and gender.']);
         }
 
         $model = new Patient($this->db);
@@ -136,7 +136,7 @@ class PatientController extends Controller
             ]);
         }
 
-        return $this->json(['success' => false, 'message' => 'Update failed — database error']);
+        return $this->json(['success' => false, 'message' => 'Update failed. Database error.']);
     }
 
     private function normalizePatientGender(string $gender): string

@@ -13,8 +13,12 @@
 /storage/logs/*
 !/storage/logs/.gitkeep
 /storage/cache/*
+!/storage/cache/.gitkeep
 /logs/*
 *.log
+
+# Training dataset (local only — large image set)
+/dataset/
 
 # ML model weights (large binaries — see ai/models/README.md)
 /ai/models/**/*.keras
@@ -40,6 +44,10 @@ __pycache__/
 *.py[cod]
 *.egg-info/
 .pytest_cache/
+
+# Deploy artifacts (regenerate via scripts/build-hosting-package.ps1)
+/deploy/*.zip
+/deploy/*.sql
 
 # Optional local scripts output
 /database/smoke_routes.php

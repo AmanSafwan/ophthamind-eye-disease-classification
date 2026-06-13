@@ -1,0 +1,76 @@
+/**
+ * OphthaMind — transparent logo lockup (no baked background).
+ */
+
+:root {
+    --logo-blue: #1a53a1;
+    --logo-blue-deep: #174f96;
+    --logo-blue-dark: #133f78;
+    --clinical-brand-height: 80px;
+}
+
+.ophthamind-logo {
+    display: block;
+    flex-shrink: 0;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: center;
+    image-rendering: auto;
+    -webkit-user-drag: none;
+    user-select: none;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.18));
+}
+
+/* ── Sidebar ── */
+.clinical-brand {
+    background: transparent !important;
+}
+
+.clinical-brand .ophthamind-logo {
+    height: 54px;
+    max-width: min(186px, 94%);
+}
+
+body.sidebar-collapse .clinical-brand .ophthamind-logo {
+    height: 38px;
+    max-width: 38px;
+}
+
+/* ── Landing hero (dark panel) ── */
+.story-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    line-height: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+.story-logo .ophthamind-logo {
+    height: 56px;
+    max-width: 200px;
+    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.35));
+}
+
+/* ── Login / register card (light panel) ── */
+.access-brand {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.access-brand .ophthamind-logo {
+    height: 52px;
+    max-width: 180px;
+    filter: drop-shadow(0 3px 10px rgba(26, 83, 161, 0.15));
+}
+
+/* ── Footer ── */
+.clinical-footer-logo .ophthamind-logo {
+    height: 44px;
+    max-width: 160px;
+    filter: drop-shadow(0 1px 4px rgba(15, 23, 42, 0.12));
+}

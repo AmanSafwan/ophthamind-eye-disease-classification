@@ -17,11 +17,11 @@ if (PHP_SAPI !== 'cli') {
     exit(1);
 }
 
-require_once dirname(__DIR__) . '/config/app.php';
+require_once dirname(__DIR__, 2) . '/config/app.php';
 require_once __DIR__ . '/MalaysianNameGenerator.php';
 
 /** @var PDO $db */
-$db = require dirname(__DIR__) . '/config/db.php';
+$db = require dirname(__DIR__, 2) . '/config/db.php';
 
 const SEED_TOTAL = 1500;
 const RANDOM_ADD_MIN = 1000;

@@ -53,7 +53,7 @@ class LoginController
         if (!$email || !$password) {
             try {
                 $audit = new AuditHelper($this->conn);
-                $audit->logAction(0, AuditHelper::action('AUTH.LOGIN_FAILED', 'Sign-in attempt rejected — missing credentials'), [
+                $audit->logAction(0, AuditHelper::action('AUTH.LOGIN_FAILED', 'Sign-in attempt rejected, missing credentials'), [
                     'outcome' => 'FAILED',
                     'email' => $email !== '' ? $email : '(empty)',
                     'reason' => 'Email or password not supplied',
@@ -117,7 +117,7 @@ class LoginController
 
             try {
                 $audit = new AuditHelper($this->conn);
-                $audit->logAction(0, AuditHelper::action('AUTH.LOGIN_FAILED', 'Sign-in attempt rejected — invalid credentials'), [
+                $audit->logAction(0, AuditHelper::action('AUTH.LOGIN_FAILED', 'Sign-in attempt rejected, invalid credentials'), [
                     'outcome' => 'FAILED',
                     'email' => $email,
                     'reason' => $user ? 'Incorrect password' : 'Unknown email address',

@@ -1,6 +1,11 @@
 <?php
 
 require_once __DIR__ . '/config/app.php';
+
+if (hosting_setup_pending() && empty(env('DB_NAME', ''))) {
+    redirect_to_hosting_setup();
+}
+
 $sessionName = env('SESSION_NAME', 'eye_system_session');
 if (session_status() === PHP_SESSION_NONE) {
     session_name($sessionName);

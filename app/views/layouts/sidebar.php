@@ -13,11 +13,14 @@ $homeUrl = BASE_URL . '/' . ($isAdmin ? 'admin/dashboard' : 'ophthalmologist/das
 <aside class="main-sidebar clinical-sidebar elevation-4">
 
     <a href="<?= $homeUrl ?>" class="brand-link clinical-brand" title="OphthaMind home">
-        <span class="clinical-brand-icon"><i class="fas fa-eye"></i></span>
-        <span class="clinical-brand-text">
-            <strong>OphthaMind</strong>
-            <small>Eye Intelligence</small>
-        </span>
+        <img
+            src="<?= htmlspecialchars(brand_logo_url()) ?>"
+            alt="OphthaMind"
+            class="ophthamind-logo"
+            width="186"
+            height="54"
+            decoding="async"
+        >
     </a>
 
     <div class="sidebar clinical-sidebar-inner">

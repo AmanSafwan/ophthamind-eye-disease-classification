@@ -565,7 +565,7 @@
         const pill = document.getElementById('dashAiPill');
         const label = document.getElementById('dashAiLabel');
         if (!pill || !label) return;
-        label.textContent = 'AI status…';
+        label.textContent = 'Checking AI…';
         clinicalFetch('ophthalmologist/dashboardAiPing')
             .then((r) => r.json())
             .then((data) => {

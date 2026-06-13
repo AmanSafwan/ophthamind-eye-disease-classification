@@ -4,6 +4,20 @@ import numpy as np
 from PIL import Image
 import os
 import logging
+import json
+from datetime import datetime, timezone
+
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), "..", "config", "ai_models.json")
+
+
+def load_ai_config() -> dict:
+    if not os.path.isfile(CONFIG_PATH):
+        raise FileNotFoundError(f"AI config not found: {CONFIG_PATH}")
+    with open(CONFIG_PATH, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+AI_CONFIG = load_ai_config()
 
 # =====================================================
 # APP INIT
@@ -70,8 +84,35 @@ def normalize_label(label: str) -> str:
 # =====================================================
 # MODEL LOADER
 # =====================================================
+MODEL_NAMES = ("cnn", "vgg16", "resnet50")
+LOADED_AT = None
+MODEL_MANIFEST = {}
+
+
+def model_file_path(name: str) -> str:
+    return os.path.join(BASE_DIR, name, f"{name}_final.keras")
+
+
+def build_model_manifest() -> dict:
+    manifest = {}
+    for name in MODEL_NAMES:
+        path = model_file_path(name)
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Model not found: {path}")
+        stat = os.stat(path)
+        manifest[name] = {
+            "path": os.path.abspath(path),
+            "size_bytes": int(stat.st_size),
+            "modified_unix": int(stat.st_mtime),
+            "modified": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc)
+            .astimezone()
+            .isoformat(timespec="seconds"),
+        }
+    return manifest
+
+
 def load_model_by_name(name):
-    path = os.path.join(BASE_DIR, name, f"{name}_final.keras")
+    path = model_file_path(name)
 
     if not os.path.exists(path):
         raise FileNotFoundError(f"Model not found: {path}")
@@ -79,12 +120,16 @@ def load_model_by_name(name):
     logging.info(f"[MODEL LOAD] {name} -> {path}")
     return tf.keras.models.load_model(path, compile=False)
 
+
 # =====================================================
-# LOAD MODELS (ONE TIME)
+# LOAD MODELS (ONCE PER PROCESS — restart API after file swap)
 # =====================================================
+MODEL_MANIFEST = build_model_manifest()
+LOADED_AT = datetime.now().astimezone().isoformat(timespec="seconds")
 cnn_model = load_model_by_name("cnn")
 vgg_model = load_model_by_name("vgg16")
 resnet_model = load_model_by_name("resnet50")
+logging.info(f"[MODEL LOAD] All models loaded at {LOADED_AT}")
 
 # =====================================================
 # CORE IMAGE PREPROCESS
@@ -119,10 +164,11 @@ def predict_model(model, x):
 # ENSEMBLE STRATEGY (WEIGHTED)
 # =====================================================
 def ensemble_predictions(cnn_pred, vgg_pred, resnet_pred):
+    w = AI_CONFIG["ensemble_weights"]
     return (
-        cnn_pred * 0.30 +
-        vgg_pred * 0.35 +
-        resnet_pred * 0.35
+        cnn_pred * w["cnn"]
+        + vgg_pred * w["vgg16"]
+        + resnet_pred * w["resnet50"]
     )
 
 def get_label(index):
@@ -131,15 +177,68 @@ def get_label(index):
 def get_risk(label):
     return RISK_MAP.get(label, "Unknown")
 
-def calculate_agreement(labels):
-    final = max(set(labels), key=labels.count)
-    return (labels.count(final) / len(labels)) * 100
+BENCHMARK_ACCURACY = AI_CONFIG["benchmark_accuracy"]
+ENSEMBLE_WEIGHTS = AI_CONFIG["ensemble_weights"]
+MODEL_VERSION = AI_CONFIG.get("model_version", {})
+
+
+def calculate_agreement_metrics(labels, confidences, final_label):
+    """Composite agreement from label concordance, benchmark accuracy, and case confidence."""
+    models = [
+        {"key": "cnn", "label": labels[0], "confidence": confidences[0], "accuracy": BENCHMARK_ACCURACY["cnn"]},
+        {"key": "vgg16", "label": labels[1], "confidence": confidences[1], "accuracy": BENCHMARK_ACCURACY["vgg16"]},
+        {"key": "resnet50", "label": labels[2], "confidence": confidences[2], "accuracy": BENCHMARK_ACCURACY["resnet50"]},
+    ]
+
+    majority = max(set(labels), key=labels.count)
+    label_concordance = (labels.count(majority) / len(labels)) * 100
+
+    weighted_confidence = 0.0
+    weight_sum = 0.0
+    for model in models:
+        weight = ENSEMBLE_WEIGHTS[model["key"]]
+        weighted_confidence += weight * (model["accuracy"] / 100.0) * (model["confidence"] / 100.0)
+        weight_sum += weight
+    weighted_confidence = (weighted_confidence / weight_sum * 100.0) if weight_sum else 0.0
+
+    aligned = [m for m in models if m["label"] == final_label]
+    if aligned:
+        agreement_accuracy = sum(m["accuracy"] for m in aligned) / len(aligned)
+        acc_sum = sum(m["accuracy"] for m in aligned)
+        agreement_confidence = (
+            sum(m["accuracy"] * m["confidence"] for m in aligned) / acc_sum if acc_sum else 0.0
+        )
+    else:
+        agreement_accuracy = 0.0
+        agreement_confidence = weighted_confidence * 0.5
+
+    composite = (
+        0.35 * label_concordance
+        + 0.35 * agreement_accuracy
+        + 0.30 * agreement_confidence
+    )
+
+    return {
+        "cnn_accuracy": BENCHMARK_ACCURACY["cnn"],
+        "vgg_accuracy": BENCHMARK_ACCURACY["vgg16"],
+        "resnet_accuracy": BENCHMARK_ACCURACY["resnet50"],
+        "agreement_label_pct": round(label_concordance, 2),
+        "agreement_accuracy_pct": round(agreement_accuracy, 2),
+        "agreement_confidence_pct": round(agreement_confidence, 2),
+        "model_agreement_score": round(composite, 2),
+    }
 
 @app.route("/health", methods=["GET"])
 def health():
     return jsonify({
         "status": "ok",
-        "message": "AI API running"
+        "message": "AI API running",
+        "pid": os.getpid(),
+        "loaded_at": LOADED_AT,
+        "models": MODEL_MANIFEST,
+        "benchmark_accuracy": BENCHMARK_ACCURACY,
+        "ensemble_weights": ENSEMBLE_WEIGHTS,
+        "model_version": MODEL_VERSION,
     })
 
 @app.route("/predict", methods=["POST"])
@@ -174,7 +273,15 @@ def predict():
         resnet_label = normalize_label(get_label(resnet_class))
         final_label = normalize_label(get_label(final_class))
 
-        agreement = calculate_agreement([cnn_label, vgg_label, resnet_label])
+        cnn_conf = round(float(np.max(cnn_pred)) * 100, 2)
+        vgg_conf = round(float(np.max(vgg_pred)) * 100, 2)
+        resnet_conf = round(float(np.max(resnet_pred)) * 100, 2)
+
+        agreement_metrics = calculate_agreement_metrics(
+            [cnn_label, vgg_label, resnet_label],
+            [cnn_conf, vgg_conf, resnet_conf],
+            final_label,
+        )
 
         return jsonify({
             "final_result": final_label,
@@ -183,10 +290,10 @@ def predict():
             "cnn_result": cnn_label,
             "vgg_result": vgg_label,
             "resnet_result": resnet_label,
-            "cnn_confidence": round(float(np.max(cnn_pred)) * 100, 2),
-            "vgg_confidence": round(float(np.max(vgg_pred)) * 100, 2),
-            "resnet_confidence": round(float(np.max(resnet_pred)) * 100, 2),
-            "model_agreement_score": round(agreement, 2)
+            "cnn_confidence": cnn_conf,
+            "vgg_confidence": vgg_conf,
+            "resnet_confidence": resnet_conf,
+            **agreement_metrics,
         })
 
     except Exception as e:
@@ -217,9 +324,11 @@ def _repair_stdio_for_background_launch():
 
 if __name__ == "__main__":
     _repair_stdio_for_background_launch()
+    api_port = int(os.environ.get("AI_PORT", "5000"))
+    logging.info(f"[AI API] Listening on 127.0.0.1:{api_port}")
     app.run(
         host="127.0.0.1",
-        port=5000,
+        port=api_port,
         debug=False,
         use_reloader=False,
     )
