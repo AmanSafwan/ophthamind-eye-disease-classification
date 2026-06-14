@@ -318,7 +318,6 @@ The PHP app attempts to launch the AI service in the background when a screening
 | Role | Database value | Access |
 |------|----------------|--------|
 | **Clinic Doctor** | `clinic_doctor` | Screening, dashboard, registry, history, PDF |
-| **System Administrator** | `admin` | Admin modules (dashboard, users, analytics) |
 
 Sessions are validated on every protected request — deleted accounts are immediately signed out.
 
