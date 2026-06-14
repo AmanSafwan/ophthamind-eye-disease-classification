@@ -64,10 +64,6 @@ The system classifies fundus images into **four ophthalmic categories** aligned 
 - **Screening history** — Per-patient timeline with performing clinician, re-run, soft-delete  
 - **PDF export** — A4 clinical report with embedded fundus image, ensemble breakdown, recommendations  
 
-### Administration
-- Admin dashboard shell (user management & analytics routes scaffolded)  
-- Role-based access control with session validation against live database records  
-
 ### Platform quality
 - Structured **audit log** with event codes and contextual metadata  
 - Auto-start **AI service** on Windows (XAMPP) with health checks  
