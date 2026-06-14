@@ -1,4 +1,4 @@
-# OphthaMind AI — Eye Disease Classification System
+# OphthaMind AI | Eye Disease Classification System
 
 **Final Year Project (FYP) · Bachelor of Computer Science (Software Development)**  
 **Author:** [Aman Safwan](https://github.com/AmanSafwan) · Malaysia
