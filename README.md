@@ -329,7 +329,7 @@ Sessions are validated on every protected request — deleted accounts are immed
 eye_system/
 ├── app/                         # Application code (MVC)
 │   ├── Config/Routes.php        # Route definitions (CI4-style)
-│   ├── controllers/             # Auth, Admin, Ophthalmologist
+│   ├── controllers/             # Auth, Ophthalmologist
 │   ├── core/                    # Router, base Controller
 │   ├── helpers/                 # Audit, Diagnosis, Role, Nav, …
 │   ├── middleware/              # Session & role enforcement
